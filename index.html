@@ -1,783 +1,898 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>سامانه راهبرد شوشتر</title>
-
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Tahoma, Arial, sans-serif;
-        }
-
-        body {
-            background: #f3f7fc;
-            color: #172033;
-            min-height: 100vh;
-        }
-
-        button,
-        input,
-        textarea,
-        select {
-            font-family: inherit;
-        }
-
-        /* LOGIN */
-
-        #loginPage {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background:
-                radial-gradient(circle at top right, #1d4ed8 0%, transparent 35%),
-                radial-gradient(circle at bottom left, #0ea5e9 0%, transparent 30%),
-                #07152f;
-        }
-
-        .login-box {
-            width: 100%;
-            max-width: 430px;
-            background: rgba(255,255,255,0.97);
-            border-radius: 24px;
-            padding: 35px 28px;
-            box-shadow: 0 25px 80px rgba(0,0,0,0.35);
-        }
-
-        .logo {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 18px;
-            border-radius: 22px;
-            background: linear-gradient(135deg,#2563eb,#06b6d4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 34px;
-            font-weight: bold;
-            box-shadow: 0 10px 30px rgba(37,99,235,.35);
-        }
-
-        .login-title {
-            text-align: center;
-            color: #0f172a;
-            font-size: 25px;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-
-        .login-subtitle {
-            text-align: center;
-            color: #64748b;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        .input-group {
-            margin-bottom: 18px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #334155;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1px solid #dbe3ef;
-            border-radius: 13px;
-            outline: none;
-            font-size: 15px;
-            background: #f8fafc;
-            transition: .2s;
-        }
-
-        .input-group input:focus {
-            border-color: #2563eb;
-            background: white;
-            box-shadow: 0 0 0 4px rgba(37,99,235,.10);
-        }
-
-        #loginButton {
-            width: 100%;
-            border: none;
-            padding: 15px;
-            border-radius: 13px;
-            background: linear-gradient(135deg,#2563eb,#0ea5e9);
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 10px 25px rgba(37,99,235,.25);
-            transition: .2s;
-        }
-
-        #loginButton:hover {
-            transform: translateY(-2px);
-        }
-
-        #loginButton:active {
-            transform: scale(.98);
-        }
-
-        #loginError {
-            color: #dc2626;
-            text-align: center;
-            margin-top: 15px;
-            font-size: 14px;
-            min-height: 20px;
-        }
-
-        /* DASHBOARD */
-
-        #dashboard {
-            display: none;
-            min-height: 100vh;
-        }
-
-        .sidebar {
-            width: 260px;
-            background: #07152f;
-            color: white;
-            position: fixed;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            padding: 22px 15px;
-            z-index: 1000;
-            overflow-y: auto;
-        }
-
-        .sidebar-logo {
-            padding: 10px 12px 25px;
-            border-bottom: 1px solid rgba(255,255,255,.1);
-            margin-bottom: 20px;
-        }
-
-        .sidebar-logo h2 {
-            font-size: 19px;
-        }
-
-        .sidebar-logo span {
-            display: block;
-            margin-top: 7px;
-            color: #93c5fd;
-            font-size: 12px;
-        }
-
-        .menu-btn {
-            width: 100%;
-            border: none;
-            background: transparent;
-            color: #cbd5e1;
-            text-align: right;
-            padding: 13px 15px;
-            border-radius: 11px;
-            cursor: pointer;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
-        .menu-btn:hover,
-        .menu-btn.active {
-            background: #1d4ed8;
-            color: white;
-        }
-
-        .logout-btn {
-            margin-top: 20px;
-            color: #fca5a5;
-        }
-
-        .main-content {
-            margin-right: 260px;
-            width: calc(100% - 260px);
-            min-height: 100vh;
-        }
-
-        .topbar {
-            height: 75px;
-            background: white;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 28px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .topbar h1 {
-            font-size: 20px;
-        }
-
-        .user-badge {
-            background: #eff6ff;
-            color: #1d4ed8;
-            padding: 9px 14px;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: bold;
-        }
-
-        .page {
-            padding: 28px;
-        }
-
-        .hero {
-            background: linear-gradient(135deg,#0f2b66,#2563eb,#0891b2);
-            color: white;
-            padding: 30px;
-            border-radius: 22px;
-            margin-bottom: 25px;
-            box-shadow: 0 15px 40px rgba(37,99,235,.20);
-        }
-
-        .hero h2 {
-            font-size: 25px;
-            margin-bottom: 10px;
-        }
-
-        .hero p {
-            color: #dbeafe;
-            font-size: 14px;
-        }
-
-        /* STATS */
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4,1fr);
-            gap: 18px;
-            margin-bottom: 28px;
-        }
-
-        .stat-card {
-            background: white;
-            border: 1px solid #e5edf7;
-            border-radius: 18px;
-            padding: 22px;
-            box-shadow: 0 8px 25px rgba(15,23,42,.05);
-        }
-
-        .stat-card small {
-            color: #64748b;
-            font-size: 13px;
-        }
-
-        .stat-card strong {
-            display: block;
-            color: #1d4ed8;
-            font-size: 29px;
-            margin-top: 10px;
-        }
-
-        /* AREAS */
-
-        .section-title {
-            margin-bottom: 16px;
-            font-size: 20px;
-        }
-
-        .areas-grid {
-            display: grid;
-            grid-template-columns: repeat(2,1fr);
-            gap: 16px;
-        }
-
-        .area-card {
-            background: white;
-            border: 1px solid #e5edf7;
-            border-radius: 17px;
-            padding: 18px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 7px 22px rgba(15,23,42,.05);
-            transition: .2s;
-            cursor: pointer;
-        }
-
-        .area-card:hover {
-            transform: translateY(-3px);
-            border-color: #93c5fd;
-        }
-
-        .area-number {
-            width: 45px;
-            height: 45px;
-            border-radius: 13px;
-            background: #eff6ff;
-            color: #2563eb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-
-        .area-card strong {
-            display: block;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .area-card small {
-            color: #64748b;
-        }
-
-        /* REPORT */
-
-        .panel {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid #e5edf7;
-            box-shadow: 0 8px 25px rgba(15,23,42,.05);
-            margin-bottom: 20px;
-        }
-
-        .panel h3 {
-            margin-bottom: 10px;
-        }
-
-        .empty {
-            color: #64748b;
-            padding: 30px 0;
-            text-align: center;
-        }
-
-        /* MOBILE */
-
-        .mobile-menu {
-            display: none;
-            border: none;
-            background: #eff6ff;
-            color: #2563eb;
-            padding: 9px 12px;
-            border-radius: 10px;
-            font-size: 20px;
-        }
-
-        @media(max-width:900px) {
-
-            .sidebar {
-                transform: translateX(100%);
-                transition: .25s;
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-right: 0;
-                width: 100%;
-            }
-
-            .mobile-menu {
-                display: block;
-            }
-
-            .topbar {
-                padding: 0 15px;
-            }
-
-            .page {
-                padding: 18px;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2,1fr);
-            }
-
-            .areas-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media(max-width:500px) {
-
-            .login-box {
-                padding: 28px 20px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-
-            .stat-card {
-                padding: 15px;
-            }
-
-            .stat-card strong {
-                font-size: 23px;
-            }
-
-            .topbar h1 {
-                font-size: 16px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سامانه راهبرد شوشتر</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Tahoma,Arial,sans-serif;
+}
+
+body{
+    background:#f1f5f9;
+    color:#172033;
+}
+
+/* LOGIN */
+
+#loginPage{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:
+        radial-gradient(circle at 10% 20%,rgba(14,165,233,.25),transparent 30%),
+        radial-gradient(circle at 90% 80%,rgba(37,99,235,.35),transparent 35%),
+        linear-gradient(135deg,#020617,#0f2b66);
+}
+
+.login-box{
+    width:100%;
+    max-width:430px;
+    padding:38px 30px;
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:28px;
+    background:rgba(255,255,255,.97);
+    box-shadow:0 30px 90px rgba(0,0,0,.4);
+}
+
+.logo{
+    width:82px;
+    height:82px;
+    margin:auto auto 20px;
+    border-radius:24px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:34px;
+    font-weight:bold;
+    background:linear-gradient(135deg,#2563eb,#06b6d4);
+    box-shadow:0 12px 35px rgba(37,99,235,.4);
+}
+
+.login-title{
+    text-align:center;
+    font-size:25px;
+    font-weight:bold;
+    color:#0f172a;
+}
+
+.login-subtitle{
+    text-align:center;
+    margin:10px 0 30px;
+    color:#64748b;
+    font-size:13px;
+}
+
+.input-group{
+    margin-bottom:18px;
+}
+
+.input-group label{
+    display:block;
+    margin-bottom:8px;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.input-group input{
+    width:100%;
+    padding:15px;
+    border:1px solid #dbe4ef;
+    border-radius:14px;
+    background:#f8fafc;
+    outline:none;
+    font-size:14px;
+}
+
+.input-group input:focus{
+    border-color:#2563eb;
+    background:white;
+    box-shadow:0 0 0 4px rgba(37,99,235,.1);
+}
+
+#loginButton{
+    width:100%;
+    border:0;
+    border-radius:14px;
+    padding:15px;
+    color:white;
+    background:linear-gradient(135deg,#2563eb,#0891b2);
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+#loginError{
+    min-height:22px;
+    text-align:center;
+    color:#dc2626;
+    margin-top:14px;
+    font-size:13px;
+}
+
+/* DASHBOARD */
+
+#dashboard{
+    display:none;
+    min-height:100vh;
+}
+
+.sidebar{
+    position:fixed;
+    right:0;
+    top:0;
+    bottom:0;
+    width:270px;
+    padding:20px 15px;
+    background:linear-gradient(180deg,#020617,#0b1f49);
+    color:white;
+    z-index:1000;
+}
+
+.brand{
+    padding:10px 12px 24px;
+    border-bottom:1px solid rgba(255,255,255,.1);
+    margin-bottom:20px;
+}
+
+.brand h2{
+    font-size:19px;
+}
+
+.brand p{
+    margin-top:7px;
+    color:#93c5fd;
+    font-size:11px;
+}
+
+.menu-title{
+    color:#64748b;
+    font-size:11px;
+    padding:10px 13px;
+}
+
+.menu-btn{
+    width:100%;
+    padding:13px 14px;
+    margin-bottom:5px;
+    border:0;
+    border-radius:12px;
+    background:transparent;
+    color:#cbd5e1;
+    text-align:right;
+    cursor:pointer;
+    font-size:13px;
+}
+
+.menu-btn:hover,
+.menu-btn.active{
+    background:linear-gradient(90deg,#2563eb,#0891b2);
+    color:white;
+}
+
+.logout-btn{
+    margin-top:20px;
+    color:#fca5a5;
+}
+
+.main-content{
+    width:calc(100% - 270px);
+    margin-right:270px;
+}
+
+.topbar{
+    height:75px;
+    background:white;
+    border-bottom:1px solid #e2e8f0;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
+    position:sticky;
+    top:0;
+    z-index:100;
+}
+
+.topbar h1{
+    font-size:20px;
+}
+
+.user-area{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.user-avatar{
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    background:#dbeafe;
+    color:#2563eb;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+}
+
+.user-badge{
+    color:#1d4ed8;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.page{
+    padding:28px;
+}
+
+/* HERO */
+
+.hero{
+    position:relative;
+    overflow:hidden;
+    border-radius:25px;
+    padding:30px;
+    color:white;
+    background:
+        radial-gradient(circle at 90% 20%,rgba(255,255,255,.18),transparent 25%),
+        linear-gradient(135deg,#0f2b66,#2563eb,#0891b2);
+    box-shadow:0 18px 45px rgba(37,99,235,.2);
+    margin-bottom:25px;
+}
+
+.hero h2{
+    font-size:25px;
+    margin-bottom:10px;
+}
+
+.hero p{
+    color:#dbeafe;
+    font-size:13px;
+}
+
+.hero-tag{
+    display:inline-block;
+    margin-bottom:13px;
+    padding:7px 12px;
+    border-radius:30px;
+    background:rgba(255,255,255,.13);
+    border:1px solid rgba(255,255,255,.18);
+    font-size:11px;
+}
+
+/* STATS */
+
+.stats-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    margin-bottom:30px;
+}
+
+.stat-card{
+    position:relative;
+    overflow:hidden;
+    background:white;
+    border:1px solid #e2e8f0;
+    border-radius:19px;
+    padding:21px;
+    box-shadow:0 8px 25px rgba(15,23,42,.05);
+}
+
+.stat-icon{
+    width:42px;
+    height:42px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#eff6ff;
+    color:#2563eb;
+    font-size:19px;
+    margin-bottom:13px;
+}
+
+.stat-card small{
+    color:#64748b;
+    font-size:12px;
+}
+
+.stat-card strong{
+    display:block;
+    margin-top:7px;
+    font-size:28px;
+    color:#0f2b66;
+}
+
+/* SECTION HEADER */
+
+.section-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:16px;
+}
+
+.section-header h3{
+    font-size:19px;
+}
+
+.section-header span{
+    color:#64748b;
+    font-size:12px;
+}
+
+/* AREAS */
+
+.areas-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+
+.area-card{
+    background:white;
+    border:1px solid #e2e8f0;
+    border-radius:18px;
+    padding:17px;
+    display:flex;
+    align-items:center;
+    gap:15px;
+    cursor:pointer;
+    transition:.2s;
+    box-shadow:0 7px 20px rgba(15,23,42,.04);
+}
+
+.area-card:hover{
+    transform:translateY(-3px);
+    border-color:#60a5fa;
+    box-shadow:0 15px 30px rgba(37,99,235,.1);
+}
+
+.area-number{
+    width:48px;
+    height:48px;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:14px;
+    color:#2563eb;
+    background:linear-gradient(135deg,#dbeafe,#ecfeff);
+    font-weight:bold;
+    font-size:18px;
+}
+
+.area-info strong{
+    display:block;
+    font-size:13px;
+    margin-bottom:6px;
+}
+
+.area-info small{
+    color:#64748b;
+    font-size:11px;
+}
+
+/* OTHER PAGES */
+
+.panel{
+    background:white;
+    border:1px solid #e2e8f0;
+    border-radius:22px;
+    padding:25px;
+    box-shadow:0 8px 25px rgba(15,23,42,.05);
+}
+
+.panel h3{
+    margin-bottom:10px;
+}
+
+.empty{
+    text-align:center;
+    padding:40px 10px;
+    color:#64748b;
+    font-size:13px;
+}
+
+.mobile-menu{
+    display:none;
+    border:0;
+    background:#eff6ff;
+    color:#2563eb;
+    border-radius:10px;
+    padding:9px 12px;
+    font-size:20px;
+}
+
+/* MOBILE */
+
+@media(max-width:950px){
+
+    .sidebar{
+        transform:translateX(100%);
+        transition:.25s;
+    }
+
+    .sidebar.open{
+        transform:translateX(0);
+    }
+
+    .main-content{
+        width:100%;
+        margin-right:0;
+    }
+
+    .mobile-menu{
+        display:block;
+    }
+
+    .stats-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:600px){
+
+    .page{
+        padding:15px;
+    }
+
+    .topbar{
+        padding:0 15px;
+    }
+
+    .topbar h1{
+        font-size:16px;
+    }
+
+    .user-badge{
+        display:none;
+    }
+
+    .hero{
+        padding:22px;
+    }
+
+    .hero h2{
+        font-size:20px;
+    }
+
+    .stats-grid{
+        gap:10px;
+    }
+
+    .stat-card{
+        padding:15px;
+    }
+
+    .stat-card strong{
+        font-size:23px;
+    }
+
+    .areas-grid{
+        grid-template-columns:1fr;
+    }
+
+    .login-box{
+        padding:30px 20px;
+    }
+}
+</style>
 </head>
 
 <body>
 
-<!-- ================= LOGIN ================= -->
+<!-- LOGIN -->
 
 <section id="loginPage">
 
-    <div class="login-box">
+<div class="login-box">
 
-        <div class="logo">ر</div>
+    <div class="logo">ر</div>
 
-        <div class="login-title">
-            سامانه راهبرد شوشتر
-        </div>
-
-        <div class="login-subtitle">
-            سامانه مدیریت و ثبت گزارشات
-        </div>
-
-        <form id="loginForm">
-
-            <div class="input-group">
-                <label for="email">ایمیل</label>
-                <input
-                    id="email"
-                    type="email"
-                    placeholder="ایمیل خود را وارد کنید"
-                    autocomplete="username"
-                >
-            </div>
-
-            <div class="input-group">
-                <label for="password">رمز عبور</label>
-                <input
-                    id="password"
-                    type="password"
-                    placeholder="رمز عبور را وارد کنید"
-                    autocomplete="current-password"
-                >
-            </div>
-
-            <button
-                id="loginButton"
-                type="submit"
-            >
-                ورود به سامانه
-            </button>
-
-            <div id="loginError"></div>
-
-        </form>
-
+    <div class="login-title">
+        سامانه راهبرد شوشتر
     </div>
+
+    <div class="login-subtitle">
+        سامانه مدیریت، ثبت و پایش گزارشات
+    </div>
+
+    <form id="loginForm">
+
+        <div class="input-group">
+            <label>ایمیل</label>
+            <input
+                id="email"
+                type="email"
+                placeholder="ایمیل خود را وارد کنید"
+                autocomplete="username"
+            >
+        </div>
+
+        <div class="input-group">
+            <label>رمز عبور</label>
+            <input
+                id="password"
+                type="password"
+                placeholder="رمز عبور خود را وارد کنید"
+                autocomplete="current-password"
+            >
+        </div>
+
+        <button id="loginButton" type="submit">
+            ورود به سامانه
+        </button>
+
+        <div id="loginError"></div>
+
+    </form>
+
+</div>
 
 </section>
 
 
-<!-- ================= DASHBOARD ================= -->
+<!-- DASHBOARD -->
 
 <section id="dashboard">
 
-    <!-- SIDEBAR -->
+<!-- SIDEBAR -->
 
-    <aside id="sidebar" class="sidebar">
+<aside id="sidebar" class="sidebar">
 
-        <div class="sidebar-logo">
-            <h2>سامانه راهبرد شوشتر</h2>
-            <span>مدیریت گزارشات و عملکرد</span>
+    <div class="brand">
+        <h2>سامانه راهبرد شوشتر</h2>
+        <p>مرکز مدیریت گزارشات</p>
+    </div>
+
+    <div class="menu-title">
+        منوی اصلی
+    </div>
+
+    <button
+        class="menu-btn active"
+        onclick="showPage('dashboardPage',this)"
+    >
+        🏠 داشبورد
+    </button>
+
+    <button
+        class="menu-btn"
+        onclick="showPage('areasPage',this)"
+    >
+        🏢 انتخاب حوزه
+    </button>
+
+    <button
+        class="menu-btn"
+        onclick="showPage('reportsPage',this)"
+    >
+        📋 گزارش‌ها
+    </button>
+
+    <div class="menu-title">
+        مدیریت
+    </div>
+
+    <button
+        class="menu-btn"
+        onclick="showPage('settingsPage',this)"
+    >
+        ⚙️ تنظیمات
+    </button>
+
+    <button
+        class="menu-btn logout-btn"
+        onclick="logout()"
+    >
+        🚪 خروج
+    </button>
+
+</aside>
+
+
+<!-- MAIN -->
+
+<main class="main-content">
+
+<header class="topbar">
+
+    <button
+        class="mobile-menu"
+        onclick="toggleMenu()"
+    >
+        ☰
+    </button>
+
+    <h1 id="pageTitle">
+        داشبورد
+    </h1>
+
+    <div class="user-area">
+
+        <div class="user-avatar">
+            م
         </div>
 
-        <button
-            class="menu-btn active"
-            onclick="showPage('dashboardPage', this)"
-        >
-            🏠 داشبورد
-        </button>
+        <div class="user-badge">
+            مدیر اصلی
+        </div>
 
-        <button
-            class="menu-btn"
-            onclick="showPage('areasPage', this)"
-        >
-            🏢 انتخاب حوزه
-        </button>
+    </div>
 
-        <button
-            class="menu-btn"
-            onclick="showPage('reportsPage', this)"
-        >
-            📋 گزارش‌ها
-        </button>
-
-        <button
-            class="menu-btn"
-            onclick="showPage('settingsPage', this)"
-        >
-            ⚙️ تنظیمات
-        </button>
-
-        <button
-            class="menu-btn logout-btn"
-            onclick="logout()"
-        >
-            🚪 خروج
-        </button>
-
-    </aside>
+</header>
 
 
-    <!-- MAIN -->
+<!-- DASHBOARD PAGE -->
 
-    <main class="main-content">
+<div id="dashboardPage" class="page">
 
-        <header class="topbar">
+    <div class="hero">
 
-            <button
-                class="mobile-menu"
-                onclick="toggleMenu()"
-            >
-                ☰
-            </button>
+        <span class="hero-tag">
+            پنل مدیریت سامانه
+        </span>
 
-            <h1 id="pageTitle">
-                داشبورد
-            </h1>
+        <h2>
+            خوش آمدید 👋
+        </h2>
 
-            <div class="user-badge">
-                مدیر اصلی
-            </div>
+        <p>
+            وضعیت گزارشات و عملکرد حوزه‌های سامانه راهبرد شوشتر
+            را از این قسمت مدیریت کنید.
+        </p>
 
-        </header>
+    </div>
 
 
-        <!-- DASHBOARD PAGE -->
+    <div class="stats-grid">
 
-        <div
-            id="dashboardPage"
-            class="page"
-        >
+        <div class="stat-card">
 
-            <div class="hero">
+            <div class="stat-icon">📊</div>
 
-                <h2>
-                    خوش آمدید 👋
-                </h2>
+            <small>
+                کل گزارش‌های تأیید شده
+            </small>
 
-                <p>
-                    به سامانه راهبرد شوشتر خوش آمدید.
-                    مدیریت و ثبت گزارشات حوزه‌ها از این بخش انجام می‌شود.
-                </p>
-
-            </div>
-
-
-            <div class="stats-grid">
-
-                <div class="stat-card">
-                    <small>کل گزارش‌های تأیید شده</small>
-                    <strong id="totalReports">0</strong>
-                </div>
-
-                <div class="stat-card">
-                    <small>گزارش‌های امروز</small>
-                    <strong id="todayReports">0</strong>
-                </div>
-
-                <div class="stat-card">
-                    <small>گزارش‌های این ماه</small>
-                    <strong id="monthReports">0</strong>
-                </div>
-
-                <div class="stat-card">
-                    <small>تعداد تصاویر</small>
-                    <strong id="photoCount">0</strong>
-                </div>
-
-            </div>
-
-
-            <h3 class="section-title">
-                حوزه‌های فعال
-            </h3>
-
-
-            <div class="areas-grid">
-
-                <div class="area-card">
-                    <div class="area-number">۱</div>
-                    <div>
-                        <strong>حوزه یک روستایی</strong>
-                        <small>امام محمد باقر (ع)</small>
-                    </div>
-                </div>
-
-                <div class="area-card">
-                    <div class="area-number">۲</div>
-                    <div>
-                        <strong>حوزه دو روستایی</strong>
-                        <small>امام سجاد (ع)</small>
-                    </div>
-                </div>
-
-                <div class="area-card">
-                    <div class="area-number">۳</div>
-                    <div>
-                        <strong>حوزه سه روستایی</strong>
-                        <small>علی بن ابی‌طالب (ع)</small>
-                    </div>
-                </div>
-
-                <div class="area-card">
-                    <div class="area-number">۴</div>
-                    <div>
-                        <strong>حوزه چهار روستایی</strong>
-                        <small>امام جعفر صادق (ع)</small>
-                    </div>
-                </div>
-
-                <div class="area-card">
-                    <div class="area-number">۵</div>
-                    <div>
-                        <strong>حوزه پنج روستایی</strong>
-                        <small>امام موسی کاظم (ع)</small>
-                    </div>
-                </div>
-
-                <div class="area-card">
-                    <div class="area-number">۶</div>
-                    <div>
-                        <strong>حوزه یک شهری</strong>
-                        <small>محمد رسول‌الله (ص)</small>
-                    </div>
-                </div>
-
-                <div class="area-card">
-                    <div class="area-number">۷</div>
-                    <div>
-                        <strong>حوزه دو شهری</strong>
-                        <small>امام حسین (ع)</small>
-                    </div>
-                </div>
-
-                <div class="area-card">
-                    <div class="area-number">۸</div>
-                    <div>
-                        <strong>حوزه سه شهری</strong>
-                        <small>امام رضا (ع)</small>
-                    </div>
-                </div>
-
-                <div class="area-card">
-                    <div class="area-number">۹</div>
-                    <div>
-                        <strong>حوزه حضرت زینب (س)</strong>
-                        <small>حوزه خواهران</small>
-                    </div>
-                </div>
-
-                <div class="area-card">
-                    <div class="area-number">۱۰</div>
-                    <div>
-                        <strong>حوزه حضرت فاطمه (س)</strong>
-                        <small>حوزه خواهران</small>
-                    </div>
-                </div>
-
-            </div>
+            <strong id="totalReports">
+                0
+            </strong>
 
         </div>
 
 
-        <!-- AREAS PAGE -->
+        <div class="stat-card">
 
-        <div
-            id="areasPage"
-            class="page"
-            style="display:none"
-        >
+            <div class="stat-icon">📅</div>
 
-            <div class="panel">
+            <small>
+                گزارش‌های امروز
+            </small>
 
-                <h3>
-                    انتخاب حوزه
-                </h3>
-
-                <p class="empty">
-                    حوزه‌های قابل دسترسی در این بخش نمایش داده می‌شوند.
-                </p>
-
-            </div>
+            <strong id="todayReports">
+                0
+            </strong>
 
         </div>
 
 
-        <!-- REPORTS PAGE -->
+        <div class="stat-card">
 
-        <div
-            id="reportsPage"
-            class="page"
-            style="display:none"
-        >
+            <div class="stat-icon">📈</div>
 
-            <div class="panel">
+            <small>
+                گزارش‌های این ماه
+            </small>
 
-                <h3>
-                    گزارش‌ها
-                </h3>
-
-                <p class="empty">
-                    گزارش‌های ثبت شده در این بخش نمایش داده می‌شوند.
-                </p>
-
-            </div>
+            <strong id="monthReports">
+                0
+            </strong>
 
         </div>
 
 
-        <!-- SETTINGS PAGE -->
+        <div class="stat-card">
 
-        <div
-            id="settingsPage"
-            class="page"
-            style="display:none"
-        >
+            <div class="stat-icon">📸</div>
 
-            <div class="panel">
+            <small>
+                تصاویر ثبت شده
+            </small>
 
-                <h3>
-                    تنظیمات
-                </h3>
-
-                <p class="empty">
-                    تنظیمات سامانه در این بخش قرار خواهد گرفت.
-                </p>
-
-            </div>
+            <strong id="photoCount">
+                0
+            </strong>
 
         </div>
 
-    </main>
+    </div>
+
+
+    <div class="section-header">
+
+        <h3>
+            حوزه‌های سامانه
+        </h3>
+
+        <span>
+            ۱۰ حوزه فعال
+        </span>
+
+    </div>
+
+
+    <div class="areas-grid">
+
+        <div class="area-card">
+            <div class="area-number">۱</div>
+            <div class="area-info">
+                <strong>حوزه یک روستایی</strong>
+                <small>امام محمد باقر (ع)</small>
+            </div>
+        </div>
+
+        <div class="area-card">
+            <div class="area-number">۲</div>
+            <div class="area-info">
+                <strong>حوزه دو روستایی</strong>
+                <small>امام سجاد (ع)</small>
+            </div>
+        </div>
+
+        <div class="area-card">
+            <div class="area-number">۳</div>
+            <div class="area-info">
+                <strong>حوزه سه روستایی</strong>
+                <small>علی بن ابی‌طالب (ع)</small>
+            </div>
+        </div>
+
+        <div class="area-card">
+            <div class="area-number">۴</div>
+            <div class="area-info">
+                <strong>حوزه چهار روستایی</strong>
+                <small>امام جعفر صادق (ع)</small>
+            </div>
+        </div>
+
+        <div class="area-card">
+            <div class="area-number">۵</div>
+            <div class="area-info">
+                <strong>حوزه پنج روستایی</strong>
+                <small>امام موسی کاظم (ع)</small>
+            </div>
+        </div>
+
+        <div class="area-card">
+            <div class="area-number">۶</div>
+            <div class="area-info">
+                <strong>حوزه یک شهری</strong>
+                <small>محمد رسول‌الله (ص)</small>
+            </div>
+        </div>
+
+        <div class="area-card">
+            <div class="area-number">۷</div>
+            <div class="area-info">
+                <strong>حوزه دو شهری</strong>
+                <small>امام حسین (ع)</small>
+            </div>
+        </div>
+
+        <div class="area-card">
+            <div class="area-number">۸</div>
+            <div class="area-info">
+                <strong>حوزه سه شهری</strong>
+                <small>امام رضا (ع)</small>
+            </div>
+        </div>
+
+        <div class="area-card">
+            <div class="area-number">۹</div>
+            <div class="area-info">
+                <strong>حوزه حضرت زینب (س)</strong>
+                <small>حوزه خواهران</small>
+            </div>
+        </div>
+
+        <div class="area-card">
+            <div class="area-number">۱۰</div>
+            <div class="area-info">
+                <strong>حوزه حضرت فاطمه (س)</strong>
+                <small>حوزه خواهران</small>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- AREAS -->
+
+<div
+    id="areasPage"
+    class="page"
+    style="display:none"
+>
+
+    <div class="panel">
+
+        <h3>
+            انتخاب حوزه
+        </h3>
+
+        <div class="empty">
+            حوزه‌های دارای دسترسی شما در این قسمت نمایش داده خواهد شد.
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- REPORTS -->
+
+<div
+    id="reportsPage"
+    class="page"
+    style="display:none"
+>
+
+    <div class="panel">
+
+        <h3>
+            گزارش‌ها
+        </h3>
+
+        <div class="empty">
+            گزارش‌های ثبت‌شده در این قسمت نمایش داده خواهد شد.
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- SETTINGS -->
+
+<div
+    id="settingsPage"
+    class="page"
+    style="display:none"
+>
+
+    <div class="panel">
+
+        <h3>
+            تنظیمات سامانه
+        </h3>
+
+        <div class="empty">
+            تنظیمات حساب کاربری و سامانه در این قسمت قرار خواهد گرفت.
+        </div>
+
+    </div>
+
+</div>
+
+</main>
 
 </section>
 
 
-<!-- ================= SCRIPTS ================= -->
+<!-- SCRIPTS -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -786,43 +901,40 @@
 
 <script>
 
-    /*
-      اتصال فرم ورود به تابع login
-      این بخش باعث می‌شود با زدن دکمه ورود،
-      فرم صفحه را Reload نکند.
-    */
+document.addEventListener("DOMContentLoaded",function(){
 
-    document.addEventListener("DOMContentLoaded", function () {
+    const form =
+        document.getElementById("loginForm");
 
-        const form = document.getElementById("loginForm");
+    if(form){
 
-        if (form) {
+        form.addEventListener("submit",function(event){
 
-            form.addEventListener("submit", function (event) {
+            event.preventDefault();
 
-                event.preventDefault();
+            if(typeof login === "function"){
 
-                if (typeof login === "function") {
-                    login();
-                } else {
+                login();
 
-                    const errorBox =
-                        document.getElementById("loginError");
+            }else{
 
-                    if (errorBox) {
-                        errorBox.textContent =
-                            "فایل app.js اجرا نشده است.";
-                    }
+                const error =
+                    document.getElementById("loginError");
 
+                if(error){
+                    error.textContent =
+                        "خطا در بارگذاری سامانه.";
                 }
 
-            });
+            }
 
-        }
+        });
 
-    });
+    }
+
+});
 
 </script>
 
 </body>
-</html>
+    </html>
