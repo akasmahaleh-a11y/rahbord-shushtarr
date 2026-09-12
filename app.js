@@ -1,9 +1,11 @@
-const { createClient } = supabase;
+const SUPABASE_URL =
+    "https://ruxurkublhqtmwjflyxp.supabase.co";
 
-const SUPABASE_URL = "https://ruxurkublhqtmwjflyxp.supabase.co";
-const SUPABASE_KEY = "sb_publishable_11au_IG9FFtRdUpaeFtDwQ_hhsRHhc8";
+const SUPABASE_KEY =
+    "sb_publishable_11au_IG9FFtRdUpaeFtDwQ_hhsRHhc8";
 
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let db = null;
 
 let currentUser = null;
 let currentProfile = null;
@@ -11,116 +13,309 @@ let selectedAreaId = null;
 
 
 /* =========================
+   START
+========================= */
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+    console.log("App started");
+
+    try {
+
+        if (!window.supabase) {
+            showLoginError(
+                "کتابخانه Supabase بارگذاری نشده است."
+            );
+            return;
+        }
+
+        db = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+        );
+
+        console.log("Supabase connected");
+
+        const loginForm =
+            document.getElementById("loginForm");
+
+        if (loginForm) {
+
+            loginForm.addEventListener(
+                "submit",
+                login
+            );
+        }
+
+        await checkSession();
+
+    } catch (error) {
+
+        console.error(error);
+
+        showLoginError(
+            "خطا در راه‌اندازی سامانه: " +
+            error.message
+        );
+    }
+
+});
+
+
+/* =========================
    LOGIN
 ========================= */
 
 async function login(event) {
-    if (event) event.preventDefault();
 
-    const identifier = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-    const errorBox = document.getElementById("loginError");
-    const loginButton = document.getElementById("loginButton");
+    if (event) {
+        event.preventDefault();
+    }
 
-    errorBox.textContent = "";
+    console.log("Login clicked");
+
+    const identifier =
+        document.getElementById("email")
+            .value
+            .trim();
+
+    const password =
+        document.getElementById("password")
+            .value;
+
+    const button =
+        document.getElementById("loginButton");
+
+    hideLoginError();
 
     if (!identifier || !password) {
-        errorBox.textContent = "کد کاربری و رمز عبور را وارد کنید.";
+
+        showLoginError(
+            "کد کاربری و رمز عبور را وارد کنید."
+        );
+
         return false;
     }
 
-    loginButton.disabled = true;
-    loginButton.textContent = "در حال ورود...";
+
+    button.disabled = true;
+    button.textContent = "در حال ورود...";
+
 
     try {
+
         let email = identifier;
 
-        if (identifier.toUpperCase() === "ADMIN") {
-            email = "admin@raahbord-shushtar.local";
+
+        /*
+          مدیر اصلی با کد ADMIN
+        */
+
+        if (
+            identifier.toUpperCase() ===
+            "ADMIN"
+        ) {
+
+            email =
+                "admin@raahbord-shushtar.local";
         }
 
-        const { data, error } = await db.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
 
-        if (error) {
-            throw error;
+        console.log(
+            "Trying login with:",
+            email
+        );
+
+
+        const result =
+            await db.auth.signInWithPassword({
+
+                email: email,
+
+                password: password
+
+            });
+
+
+        if (result.error) {
+            throw result.error;
         }
 
-        currentUser = data.user;
+
+        currentUser =
+            result.data.user;
+
+
+        console.log(
+            "Login successful",
+            currentUser
+        );
+
 
         await loadUserProfile();
 
-        document.getElementById("loginPage").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
+
+        if (!currentProfile) {
+
+            await db.auth.signOut();
+
+            throw new Error(
+                "برای این حساب پروفایل سامانه پیدا نشد."
+            );
+        }
+
+
+        document.getElementById(
+            "loginPage"
+        ).style.display = "none";
+
+
+        document.getElementById(
+            "dashboard"
+        ).style.display = "block";
+
 
         updateProfileInfo();
+
         applyRoleAccess();
 
         await loadDashboard();
+
         await loadAreas();
 
-    } catch (error) {
-        console.error(error);
 
-        errorBox.textContent =
-            "ورود ناموفق بود. کد کاربری یا رمز عبور را بررسی کنید.";
+    } catch (error) {
+
+        console.error(
+            "LOGIN ERROR:",
+            error
+        );
+
+
+        let message =
+            "ورود انجام نشد.";
+
+
+        if (
+            error.message
+        ) {
+
+            message =
+                error.message;
+        }
+
+
+        showLoginError(
+            message
+        );
+
+    } finally {
+
+        button.disabled = false;
+
+        button.textContent =
+            "ورود به سامانه";
     }
 
-    loginButton.disabled = false;
-    loginButton.textContent = "ورود به سامانه";
 
     return false;
 }
 
 
 /* =========================
-   PROFILE
+   LOAD PROFILE
 ========================= */
 
 async function loadUserProfile() {
-    if (!currentUser) return;
 
-    const { data, error } = await db
-        .from("user_profiles")
-        .select("*")
-        .eq("id", currentUser.id)
-        .single();
-
-    if (error) {
-        console.error("Profile error:", error);
+    if (!currentUser) {
         return;
     }
 
-    currentProfile = data;
+
+    const result =
+        await db
+            .from("user_profiles")
+            .select("*")
+            .eq(
+                "id",
+                currentUser.id
+            )
+            .maybeSingle();
+
+
+    if (result.error) {
+
+        console.error(
+            "PROFILE ERROR:",
+            result.error
+        );
+
+        throw result.error;
+    }
+
+
+    currentProfile =
+        result.data;
 }
 
 
+/* =========================
+   PROFILE INFO
+========================= */
+
 function updateProfileInfo() {
-    if (!currentProfile) return;
 
-    const name = document.getElementById("profileName");
-    const role = document.getElementById("profileRole");
-
-    if (name) {
-        name.textContent =
-            currentProfile.full_name || "کاربر سامانه";
+    if (!currentProfile) {
+        return;
     }
 
-    if (role) {
-        const roles = {
-            admin: "مدیر اصلی",
-            area_manager: "مدیر حوزه",
-            section_manager: "مدیر بخش",
-            force: "کاربر"
-        };
 
-        role.textContent =
-            roles[currentProfile.role] ||
-            currentProfile.role ||
-            "کاربر";
-    }
+    const roleNames = {
+
+        admin: "مدیر اصلی",
+
+        area_manager: "مدیر حوزه",
+
+        section_manager: "مدیر بخش",
+
+        force: "کاربر"
+
+    };
+
+
+    setText(
+        "profileName",
+        currentProfile.full_name ||
+        "کاربر"
+    );
+
+
+    setText(
+        "profileRole",
+        roleNames[
+            currentProfile.role
+        ] ||
+        currentProfile.role ||
+        "کاربر"
+    );
+
+
+    setText(
+        "settingsName",
+        currentProfile.full_name ||
+        "کاربر"
+    );
+
+
+    setText(
+        "settingsRole",
+        roleNames[
+            currentProfile.role
+        ] ||
+        currentProfile.role ||
+        "کاربر"
+    );
 }
 
 
@@ -129,14 +324,30 @@ function updateProfileInfo() {
 ========================= */
 
 function applyRoleAccess() {
-    const usersMenu = document.getElementById("usersMenu");
 
-    if (!usersMenu) return;
+    const usersMenu =
+        document.getElementById(
+            "usersMenu"
+        );
 
-    if (!currentProfile || currentProfile.role !== "admin") {
-        usersMenu.style.display = "none";
+
+    if (!usersMenu) {
+        return;
+    }
+
+
+    if (
+        currentProfile &&
+        currentProfile.role === "admin"
+    ) {
+
+        usersMenu.style.display =
+            "block";
+
     } else {
-        usersMenu.style.display = "block";
+
+        usersMenu.style.display =
+            "none";
     }
 }
 
@@ -146,61 +357,123 @@ function applyRoleAccess() {
 ========================= */
 
 async function loadDashboard() {
-    if (!currentProfile) return;
 
-    let query = db
-        .from("reports")
-        .select("id, created_at, status", {
-            count: "exact"
-        })
-        .eq("status", "approved");
+    try {
 
-    const { data: reports, error } = await query;
+        const result =
+            await db
+                .from("reports")
+                .select(
+                    "id, created_at, status"
+                )
+                .eq(
+                    "status",
+                    "approved"
+                );
 
-    if (error) {
-        console.error("Dashboard error:", error);
-        return;
-    }
 
-    const allReports = reports || [];
+        if (result.error) {
 
-    const today = new Date();
+            console.warn(
+                "Reports table error:",
+                result.error
+            );
 
-    const todayString =
-        today.getFullYear() +
-        "-" +
-        String(today.getMonth() + 1).padStart(2, "0") +
-        "-" +
-        String(today.getDate()).padStart(2, "0");
+            return;
+        }
 
-    const monthPrefix =
-        today.getFullYear() +
-        "-" +
-        String(today.getMonth() + 1).padStart(2, "0");
 
-    const todayReports = allReports.filter(report => {
-        return report.created_at &&
-            report.created_at.startsWith(todayString);
-    });
+        const reports =
+            result.data || [];
 
-    const monthReports = allReports.filter(report => {
-        return report.created_at &&
-            report.created_at.startsWith(monthPrefix);
-    });
 
-    setText("totalReports", allReports.length);
-    setText("todayReports", todayReports.length);
-    setText("monthReports", monthReports.length);
+        const now =
+            new Date();
 
-    const { count: photoCount, error: photoError } = await db
-        .from("report_photos")
-        .select("id", {
-            count: "exact",
-            head: true
-        });
 
-    if (!photoError) {
-        setText("photoCount", photoCount || 0);
+        const year =
+            now.getFullYear();
+
+
+        const month =
+            String(
+                now.getMonth() + 1
+            ).padStart(2, "0");
+
+
+        const day =
+            String(
+                now.getDate()
+            ).padStart(2, "0");
+
+
+        const today =
+            `${year}-${month}-${day}`;
+
+
+        const monthPrefix =
+            `${year}-${month}`;
+
+
+        const todayReports =
+            reports.filter(
+                item =>
+                    item.created_at &&
+                    item.created_at.startsWith(
+                        today
+                    )
+            );
+
+
+        const monthReports =
+            reports.filter(
+                item =>
+                    item.created_at &&
+                    item.created_at.startsWith(
+                        monthPrefix
+                    )
+            );
+
+
+        setText(
+            "totalReports",
+            reports.length
+        );
+
+
+        setText(
+            "todayReports",
+            todayReports.length
+        );
+
+
+        setText(
+            "monthReports",
+            monthReports.length
+        );
+
+
+        const photos =
+            await db
+                .from("report_photos")
+                .select("id");
+
+
+        if (!photos.error) {
+
+            setText(
+                "photoCount",
+                (photos.data || []).length
+            );
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "DASHBOARD ERROR:",
+            error
+        );
     }
 }
 
@@ -210,88 +483,176 @@ async function loadDashboard() {
 ========================= */
 
 async function loadAreas() {
-    const container = document.getElementById("areasContainer");
 
-    if (!container) return;
+    const container =
+        document.getElementById(
+            "areasContainer"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
 
     container.innerHTML =
         '<div class="loading">در حال دریافت حوزه‌ها...</div>';
 
-    const { data, error } = await db
-        .from("areas")
-        .select("*")
-        .order("id");
 
-    if (error) {
-        console.error(error);
+    try {
+
+        const result =
+            await db
+                .from("areas")
+                .select("*")
+                .order(
+                    "id",
+                    {
+                        ascending: true
+                    }
+                );
+
+
+        if (result.error) {
+            throw result.error;
+        }
+
+
+        const areas =
+            result.data || [];
+
+
+        if (areas.length === 0) {
+
+            container.innerHTML =
+                '<div class="empty">هنوز حوزه‌ای ثبت نشده است.</div>';
+
+            return;
+        }
+
+
+        container.innerHTML = "";
+
+
+        areas.forEach(
+            area => {
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                card.className =
+                    "area-card";
+
+
+                card.innerHTML = `
+
+                    <div class="area-card-title">
+
+                        ${escapeHtml(
+                            area.name ||
+                            "حوزه بدون نام"
+                        )}
+
+                    </div>
+
+                    <button
+                        class="small-btn"
+                        type="button"
+                        onclick="selectArea(${area.id})">
+
+                        ورود به حوزه
+
+                    </button>
+                `;
+
+
+                container.appendChild(
+                    card
+                );
+            }
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "AREAS ERROR:",
+            error
+        );
+
+
         container.innerHTML =
-            '<div class="error">خطا در دریافت حوزه‌ها</div>';
-        return;
+            '<div class="empty">خطا در دریافت حوزه‌ها</div>';
     }
-
-    if (!data || data.length === 0) {
-        container.innerHTML =
-            '<div class="empty">هنوز حوزه‌ای ثبت نشده است.</div>';
-        return;
-    }
-
-    container.innerHTML = "";
-
-    data.forEach(area => {
-        const card = document.createElement("div");
-
-        card.className = "area-card";
-
-        card.innerHTML = `
-            <div class="area-card-title">
-                ${escapeHtml(area.name || "بدون نام")}
-            </div>
-
-            <button
-                type="button"
-                onclick="selectArea(${area.id})">
-                ورود به حوزه
-            </button>
-        `;
-
-        container.appendChild(card);
-    });
 }
 
 
-async function selectArea(areaId) {
-    selectedAreaId = areaId;
+/* =========================
+   SELECT AREA
+========================= */
+
+async function selectArea(
+    areaId
+) {
+
+    selectedAreaId =
+        areaId;
+
 
     const panel =
-        document.getElementById("selectedAreaPanel");
+        document.getElementById(
+            "selectedAreaPanel"
+        );
 
-    if (!panel) return;
 
-    const { data: area, error } = await db
-        .from("areas")
-        .select("*")
-        .eq("id", areaId)
-        .single();
-
-    if (error) {
-        console.error(error);
+    if (!panel) {
         return;
     }
 
-    panel.style.display = "block";
 
-    const title =
-        document.getElementById("selectedAreaTitle");
+    try {
 
-    if (title) {
-        title.textContent =
-            area.name || "حوزه انتخاب‌شده";
+        const result =
+            await db
+                .from("areas")
+                .select("*")
+                .eq(
+                    "id",
+                    areaId
+                )
+                .single();
+
+
+        if (result.error) {
+            throw result.error;
+        }
+
+
+        panel.style.display =
+            "block";
+
+
+        setText(
+            "selectedAreaTitle",
+            result.data.name ||
+            "حوزه"
+        );
+
+
+        panel.scrollIntoView({
+            behavior: "smooth"
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
     }
-
-    window.scrollTo({
-        top: panel.offsetTop - 20,
-        behavior: "smooth"
-    });
 }
 
 
@@ -300,122 +661,237 @@ async function selectArea(areaId) {
 ========================= */
 
 async function loadUsers() {
-    const container =
-        document.getElementById("usersContainer");
 
-    if (!container) return;
+    const container =
+        document.getElementById(
+            "usersContainer"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
 
     container.innerHTML =
         '<div class="loading">در حال دریافت کاربران...</div>';
 
-    const { data, error } = await db
-        .from("system_users")
-        .select("*")
-        .order("id", {
-            ascending: false
-        });
 
-    if (error) {
-        console.error(error);
+    try {
 
-        container.innerHTML =
-            '<div class="error">خطا در دریافت کاربران</div>';
+        const result =
+            await db
+                .from("system_users")
+                .select("*")
+                .order(
+                    "id",
+                    {
+                        ascending: false
+                    }
+                );
 
-        return;
-    }
 
-    if (!data || data.length === 0) {
-        container.innerHTML =
-            '<div class="empty">هنوز کاربری ساخته نشده است.</div>';
+        if (result.error) {
+            throw result.error;
+        }
 
-        return;
-    }
 
-    container.innerHTML = "";
+        const users =
+            result.data || [];
 
-    data.forEach(user => {
+
+        if (users.length === 0) {
+
+            container.innerHTML =
+                '<div class="empty">هنوز کاربری ثبت نشده است.</div>';
+
+            return;
+        }
+
 
         const roleNames = {
+
             admin: "مدیر اصلی",
+
             area_manager: "مدیر حوزه",
+
             section_manager: "مدیر بخش",
+
             force: "کاربر"
+
         };
 
-        const card = document.createElement("div");
 
-        card.className = "user-card";
+        container.innerHTML = "";
 
-        card.innerHTML = `
-            <div>
-                <strong>
-                    ${escapeHtml(user.full_name)}
-                </strong>
 
-                <div>
-                    کد:
-                    ${escapeHtml(user.user_code)}
-                </div>
+        users.forEach(
+            user => {
 
-                <div>
-                    نقش:
-                    ${roleNames[user.role] || user.role}
-                </div>
-            </div>
+                const card =
+                    document.createElement(
+                        "div"
+                    );
 
-            <div class="user-permissions">
-                ${user.can_submit_reports ? "ثبت گزارش ✓" : "ثبت گزارش ✕"}
-                <br>
-                ${user.can_view_reports ? "مشاهده گزارش ✓" : "مشاهده گزارش ✕"}
-                <br>
-                ${user.can_approve_reports ? "تأیید گزارش ✓" : "تأیید گزارش ✕"}
-            </div>
-        `;
 
-        container.appendChild(card);
-    });
+                card.className =
+                    "user-card";
+
+
+                card.innerHTML = `
+
+                    <strong>
+                        ${escapeHtml(
+                            user.full_name
+                        )}
+                    </strong>
+
+                    <p>
+                        کد کاربری:
+                        ${escapeHtml(
+                            user.user_code
+                        )}
+                    </p>
+
+                    <p>
+                        نقش:
+                        ${
+                            roleNames[
+                                user.role
+                            ] ||
+                            user.role
+                        }
+                    </p>
+
+                    <p>
+                        ${
+                            user.can_submit_reports
+                                ? "✓ ثبت گزارش"
+                                : "✕ ثبت گزارش"
+                        }
+                    </p>
+
+                `;
+
+
+                container.appendChild(
+                    card
+                );
+            }
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "USERS ERROR:",
+            error
+        );
+
+
+        container.innerHTML =
+            '<div class="empty">خطا در دریافت کاربران</div>';
+    }
 }
 
 
 /* =========================
-   USER MODAL
+   OPEN USER MODAL
 ========================= */
 
 function openUserModal() {
-    const modal =
-        document.getElementById("userModal");
 
-    if (modal) {
-        modal.style.display = "flex";
+    const modal =
+        document.getElementById(
+            "userModal"
+        );
+
+
+    if (!modal) {
+        return;
     }
+
 
     clearUserForm();
+
+
+    modal.style.display =
+        "flex";
 }
 
 
+/* =========================
+   CLOSE USER MODAL
+========================= */
+
 function closeUserModal() {
+
     const modal =
-        document.getElementById("userModal");
+        document.getElementById(
+            "userModal"
+        );
+
 
     if (modal) {
-        modal.style.display = "none";
+
+        modal.style.display =
+            "none";
     }
 }
 
 
+/* =========================
+   CLEAR USER FORM
+========================= */
+
 function clearUserForm() {
-    setValue("newFullName", "");
-    setValue("newUserCode", "");
-    setValue("newUserEmail", "");
-    setValue("newUserPassword", "");
 
-    setValue("newUserRole", "force");
+    setValue(
+        "newFullName",
+        ""
+    );
 
-    setChecked("newCanSubmit", true);
-    setChecked("newCanView", false);
-    setChecked("newCanApprove", false);
+    setValue(
+        "newUserCode",
+        ""
+    );
 
-    setText("userMessage", "");
+    setValue(
+        "newUserEmail",
+        ""
+    );
+
+    setValue(
+        "newUserPassword",
+        ""
+    );
+
+    setValue(
+        "newUserRole",
+        "force"
+    );
+
+
+    setChecked(
+        "newCanSubmit",
+        true
+    );
+
+    setChecked(
+        "newCanView",
+        false
+    );
+
+    setChecked(
+        "newCanApprove",
+        false
+    );
+
+
+    setText(
+        "userMessage",
+        ""
+    );
 }
 
 
@@ -425,57 +901,89 @@ function clearUserForm() {
 
 async function createUser() {
 
-    if (!currentProfile ||
-        currentProfile.role !== "admin") {
+    if (
+        !currentProfile ||
+        currentProfile.role !== "admin"
+    ) {
 
         setText(
             "userMessage",
-            "فقط مدیر اصلی می‌تواند کاربر بسازد."
+            "فقط مدیر اصلی اجازه ساخت کاربر دارد."
         );
 
         return;
     }
+
 
     const fullName =
-        getValue("newFullName").trim();
+        getValue(
+            "newFullName"
+        ).trim();
+
 
     const userCode =
-        getValue("newUserCode").trim().toUpperCase();
+        getValue(
+            "newUserCode"
+        )
+        .trim()
+        .toUpperCase();
+
 
     const email =
-        getValue("newUserEmail").trim();
+        getValue(
+            "newUserEmail"
+        ).trim();
+
 
     const password =
-        getValue("newUserPassword");
+        getValue(
+            "newUserPassword"
+        );
+
 
     const role =
-        getValue("newUserRole");
+        getValue(
+            "newUserRole"
+        );
+
 
     const canSubmit =
-        getChecked("newCanSubmit");
+        getChecked(
+            "newCanSubmit"
+        );
+
 
     const canView =
-        getChecked("newCanView");
+        getChecked(
+            "newCanView"
+        );
+
 
     const canApprove =
-        getChecked("newCanApprove");
+        getChecked(
+            "newCanApprove"
+        );
 
 
-    if (!fullName ||
+    if (
+        !fullName ||
         !userCode ||
         !email ||
-        !password) {
+        !password
+    ) {
 
         setText(
             "userMessage",
-            "لطفاً تمام اطلاعات کاربر را وارد کنید."
+            "همه اطلاعات را وارد کنید."
         );
 
         return;
     }
 
 
-    if (password.length < 6) {
+    if (
+        password.length < 6
+    ) {
 
         setText(
             "userMessage",
@@ -490,133 +998,163 @@ async function createUser() {
 
         setText(
             "userMessage",
-            "در حال ساخت کاربر..."
+            "در حال ثبت کاربر..."
         );
 
 
-        const { data: existing } = await db
-            .from("system_users")
-            .select("id")
-            .eq("user_code", userCode)
-            .maybeSingle();
+        const existing =
+            await db
+                .from("system_users")
+                .select("id")
+                .eq(
+                    "user_code",
+                    userCode
+                )
+                .maybeSingle();
 
 
-        if (existing) {
+        if (existing.error) {
+            throw existing.error;
+        }
+
+
+        if (existing.data) {
 
             setText(
                 "userMessage",
-                "این کد کاربری قبلاً استفاده شده است."
+                "این کد کاربری قبلاً ثبت شده است."
             );
 
             return;
         }
 
 
-        const { error } = await db
-            .from("system_users")
-            .insert({
-                full_name: fullName,
-                user_code: userCode,
-                role: role,
-                can_submit_reports: canSubmit,
-                can_view_reports: canView,
-                can_approve_reports: canApprove
-            });
+        const result =
+            await db
+                .from("system_users")
+                .insert({
+
+                    full_name:
+                        fullName,
+
+                    user_code:
+                        userCode,
+
+                    role:
+                        role,
+
+                    can_submit_reports:
+                        canSubmit,
+
+                    can_view_reports:
+                        canView,
+
+                    can_approve_reports:
+                        canApprove
+
+                });
 
 
-        if (error) {
-            throw error;
+        if (result.error) {
+            throw result.error;
         }
 
 
         setText(
             "userMessage",
-            "اطلاعات کاربر با موفقیت ثبت شد."
+            "کاربر با موفقیت ثبت شد."
         );
 
 
         await loadUsers();
 
 
-        setTimeout(() => {
-            closeUserModal();
-        }, 1200);
+        setTimeout(
+            closeUserModal,
+            1000
+        );
 
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "CREATE USER ERROR:",
+            error
+        );
+
 
         setText(
             "userMessage",
-            "خطا در ساخت کاربر: " +
-            (error.message || "خطای نامشخص")
+            "خطا: " +
+            error.message
         );
     }
 }
 
 
 /* =========================
-   PAGE NAVIGATION
+   PAGE
 ========================= */
 
-function showPage(pageName) {
+function showPage(
+    pageId
+) {
 
-    const pages = [
-        "dashboardPage",
-        "areasPage",
-        "usersPage",
-        "reportsPage",
-        "settingsPage"
-    ];
+    const pages =
+        document.querySelectorAll(
+            ".page"
+        );
 
-    pages.forEach(id => {
 
-        const page =
-            document.getElementById(id);
+    pages.forEach(
+        page => {
 
-        if (page) {
-            page.style.display = "none";
+            page.classList.remove(
+                "active"
+            );
         }
-    });
+    );
 
 
-    const selected =
-        document.getElementById(pageName);
+    const page =
+        document.getElementById(
+            pageId
+        );
 
-    if (selected) {
-        selected.style.display = "block";
+
+    if (page) {
+
+        page.classList.add(
+            "active"
+        );
     }
 
 
-    if (pageName === "usersPage") {
+    if (
+        pageId ===
+        "usersPage"
+    ) {
+
         loadUsers();
     }
 
 
-    if (pageName === "areasPage") {
+    if (
+        pageId ===
+        "areasPage"
+    ) {
+
         loadAreas();
     }
 
 
-    if (pageName === "dashboardPage") {
+    if (
+        pageId ===
+        "dashboardPage"
+    ) {
+
         loadDashboard();
     }
-}
-
-
-/* =========================
-   MENU
-========================= */
-
-function toggleMenu() {
-
-    const sidebar =
-        document.getElementById("sidebar");
-
-    if (!sidebar) return;
-
-    sidebar.classList.toggle("open");
 }
 
 
@@ -626,18 +1164,41 @@ function toggleMenu() {
 
 async function logout() {
 
-    await db.auth.signOut();
+    try {
+
+        if (db) {
+
+            await db.auth.signOut();
+        }
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+    }
+
 
     currentUser = null;
     currentProfile = null;
 
-    document.getElementById("dashboard").style.display =
+
+    document.getElementById(
+        "dashboard"
+    ).style.display =
         "none";
 
-    document.getElementById("loginPage").style.display =
+
+    document.getElementById(
+        "loginPage"
+    ).style.display =
         "flex";
 
-    setValue("password", "");
+
+    setValue(
+        "password",
+        ""
+    );
 }
 
 
@@ -647,131 +1208,90 @@ async function logout() {
 
 async function checkSession() {
 
-    const { data } =
-        await db.auth.getSession();
-
-    if (!data.session) {
+    if (!db) {
         return;
     }
 
-    currentUser = data.session.user;
 
-    await loadUserProfile();
+    try {
 
-    if (!currentProfile) {
-        await db.auth.signOut();
-        return;
+        const result =
+            await db.auth.getSession();
+
+
+        if (
+            result.error
+        ) {
+
+            console.error(
+                result.error
+            );
+
+            return;
+        }
+
+
+        if (
+            !result.data.session
+        ) {
+
+            return;
+        }
+
+
+        currentUser =
+            result.data.session.user;
+
+
+        await loadUserProfile();
+
+
+        if (!currentProfile) {
+
+            await db.auth.signOut();
+
+            return;
+        }
+
+
+        document.getElementById(
+            "loginPage"
+        ).style.display =
+            "none";
+
+
+        document.getElementById(
+            "dashboard"
+        ).style.display =
+            "block";
+
+
+        updateProfileInfo();
+
+        applyRoleAccess();
+
+        await loadDashboard();
+
+        await loadAreas();
+
+
+    } catch (error) {
+
+        console.error(
+            "SESSION ERROR:",
+            error
+        );
     }
-
-    document.getElementById("loginPage").style.display =
-        "none";
-
-    document.getElementById("dashboard").style.display =
-        "block";
-
-    updateProfileInfo();
-    applyRoleAccess();
-
-    await loadDashboard();
-    await loadAreas();
 }
 
 
 /* =========================
-   HELPERS
+   LOGIN ERROR
 ========================= */
 
-function setText(id, value) {
+function showLoginError(
+    message
+) {
 
-    const element =
-        document.getElementById(id);
-
-    if (element) {
-        element.textContent = value;
-    }
-}
-
-
-function getValue(id) {
-
-    const element =
-        document.getElementById(id);
-
-    return element ? element.value : "";
-}
-
-
-function setValue(id, value) {
-
-    const element =
-        document.getElementById(id);
-
-    if (element) {
-        element.value = value;
-    }
-}
-
-
-function getChecked(id) {
-
-    const element =
-        document.getElementById(id);
-
-    return element ? element.checked : false;
-}
-
-
-function setChecked(id, value) {
-
-    const element =
-        document.getElementById(id);
-
-    if (element) {
-        element.checked = value;
-    }
-}
-
-
-function escapeHtml(value) {
-
-    if (value === null ||
-        value === undefined) {
-        return "";
-    }
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-
-/* =========================
-   GLOBAL FUNCTIONS
-========================= */
-
-window.login = login;
-window.logout = logout;
-window.showPage = showPage;
-window.toggleMenu = toggleMenu;
-
-window.selectArea = selectArea;
-
-window.openUserModal = openUserModal;
-window.closeUserModal = closeUserModal;
-window.createUser = createUser;
-
-window.loadUsers = loadUsers;
-
-
-/* =========================
-   START
-========================= */
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    checkSession();
-
-});
+    const box =
+   
