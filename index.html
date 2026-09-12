@@ -2,364 +2,357 @@
 <html lang="fa" dir="rtl">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>سامانه راهبرد شوشتر</title>
+<title>سامانه راهبرد شوشتر</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<style>
+*{box-sizing:border-box}
 
-        body {
-            margin: 0;
-            font-family: Tahoma, Arial, sans-serif;
-            background: #f4f7fb;
-            color: #172033;
-        }
+body{
+    margin:0;
+    font-family:Tahoma,Arial,sans-serif;
+    background:#f4f7fb;
+    color:#172033;
+}
 
-        button {
-            font-family: inherit;
-            cursor: pointer;
-        }
+button{
+    font-family:inherit;
+    cursor:pointer;
+}
 
-        /* LOGIN */
+/* LOGIN */
 
-        #loginPage {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #07152f, #0b4fa3);
-            padding: 20px;
-        }
+#loginPage{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,#07152f,#0b4fa3);
+    padding:20px;
+}
 
-        .login-box {
-            width: 100%;
-            max-width: 420px;
-            background: white;
-            border-radius: 22px;
-            padding: 35px;
-            box-shadow: 0 20px 60px rgba(0,0,0,.25);
-        }
+.login-box{
+    width:100%;
+    max-width:420px;
+    background:white;
+    border-radius:22px;
+    padding:35px;
+    box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
 
-        .login-box h1 {
-            text-align: center;
-            margin-bottom: 10px;
-            color: #0b4fa3;
-        }
+.login-box h1{
+    text-align:center;
+    color:#0b4fa3;
+}
 
-        .login-box p {
-            text-align: center;
-            color: #777;
-            margin-bottom: 30px;
-        }
+.login-box p{
+    text-align:center;
+    color:#777;
+    margin-bottom:30px;
+}
 
-        .login-box input {
-            width: 100%;
-            padding: 14px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-size: 15px;
-        }
+.login-box input{
+    width:100%;
+    padding:14px;
+    margin-bottom:15px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    font-size:15px;
+}
 
-        #loginButton {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            background: #0b4fa3;
-            color: white;
-            font-size: 16px;
-        }
+#loginButton{
+    width:100%;
+    padding:14px;
+    border:0;
+    border-radius:10px;
+    background:#0b4fa3;
+    color:white;
+    font-size:16px;
+}
 
-        #loginError {
-            color: #d32f2f;
-            text-align: center;
-            margin-top: 15px;
-        }
+#loginError{
+    color:#d32f2f;
+    text-align:center;
+    margin-top:15px;
+}
 
-        /* APP */
+/* DASHBOARD */
 
-        #dashboard {
-            display: none;
-            min-height: 100vh;
-        }
+#dashboard{
+    display:none;
+    min-height:100vh;
+}
 
-        .topbar {
-            height: 65px;
-            background: white;
-            border-bottom: 1px solid #e4e8ef;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
+.topbar{
+    height:65px;
+    background:white;
+    border-bottom:1px solid #e4e8ef;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 20px;
+    position:sticky;
+    top:0;
+    z-index:100;
+}
 
-        .menu-toggle {
-            border: none;
-            background: transparent;
-            font-size: 27px;
-            color: #0b4fa3;
-        }
+.menu-toggle{
+    border:0;
+    background:transparent;
+    font-size:27px;
+    color:#0b4fa3;
+}
 
-        .user-badge {
-            color: #0b4fa3;
-            font-weight: bold;
-        }
+.user-badge{
+    color:#0b4fa3;
+    font-weight:bold;
+}
 
-        .layout {
-            display: flex;
-        }
+.layout{
+    display:flex;
+}
 
-        /* SIDEBAR */
+/* SIDEBAR */
 
-        #sidebar {
-            width: 250px;
-            min-height: calc(100vh - 65px);
-            background: #07152f;
-            color: white;
-            padding: 20px 12px;
-            transition: .3s;
-        }
+#sidebar{
+    width:250px;
+    min-height:calc(100vh - 65px);
+    background:#07152f;
+    color:white;
+    padding:20px 12px;
+    transition:.3s;
+}
 
-        .sidebar-title {
-            padding: 15px;
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
+.sidebar-title{
+    padding:15px;
+    font-size:20px;
+    font-weight:bold;
+    margin-bottom:15px;
+}
 
-        .menu-btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            background: transparent;
-            color: white;
-            text-align: right;
-            border-radius: 10px;
-            margin-bottom: 7px;
-            font-size: 15px;
-        }
+.menu-btn{
+    width:100%;
+    padding:14px;
+    border:0;
+    background:transparent;
+    color:white;
+    text-align:right;
+    border-radius:10px;
+    margin-bottom:7px;
+    font-size:15px;
+}
 
-        .menu-btn:hover,
-        .menu-btn.active {
-            background: #0b4fa3;
-        }
+.menu-btn:hover,
+.menu-btn.active{
+    background:#0b4fa3;
+}
 
-        .logout-btn {
-            width: 100%;
-            margin-top: 30px;
-            padding: 13px;
-            border: 1px solid #ffffff44;
-            background: transparent;
-            color: white;
-            border-radius: 10px;
-        }
+.logout-btn{
+    width:100%;
+    margin-top:30px;
+    padding:13px;
+    border:1px solid #ffffff44;
+    background:transparent;
+    color:white;
+    border-radius:10px;
+}
 
-        /* CONTENT */
+/* CONTENT */
 
-        .content {
-            flex: 1;
-            padding: 25px;
-            min-width: 0;
-        }
+.content{
+    flex:1;
+    padding:25px;
+    min-width:0;
+}
 
-        .page {
-            display: none;
-        }
+.page{
+    display:none;
+}
 
-        #dashboardPage {
-            display: block;
-        }
+#dashboardPage{
+    display:block;
+}
 
-        .page-title {
-            margin-bottom: 25px;
-        }
+.page-title{
+    margin-bottom:25px;
+}
 
-        /* STATS */
+/* STATS */
 
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
-        }
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-bottom:30px;
+}
 
-        .stat-card {
-            background: white;
-            padding: 22px;
-            border-radius: 16px;
-            border: 1px solid #e7ebf2;
-        }
+.stat-card{
+    background:white;
+    padding:22px;
+    border-radius:16px;
+    border:1px solid #e7ebf2;
+}
 
-        .stat-card h3 {
-            margin: 0;
-            color: #777;
-            font-size: 14px;
-        }
+.stat-card h3{
+    margin:0;
+    color:#777;
+    font-size:14px;
+}
 
-        .stat-card strong {
-            display: block;
-            font-size: 30px;
-            color: #0b4fa3;
-            margin-top: 10px;
-        }
+.stat-card strong{
+    display:block;
+    font-size:30px;
+    color:#0b4fa3;
+    margin-top:10px;
+}
 
-        /* AREAS */
+/* AREAS */
 
-        .areas-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
+.areas-container{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
 
-        .area-card {
-            background: white;
-            border: 1px solid #e2e7ef;
-            border-radius: 16px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+.area-card{
+    background:white;
+    border:1px solid #e2e7ef;
+    border-radius:16px;
+    padding:20px;
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
 
-        .area-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            background: #e8f1ff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
+.area-icon{
+    width:50px;
+    height:50px;
+    border-radius:12px;
+    background:#e8f1ff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+}
 
-        .area-info {
-            flex: 1;
-        }
+.area-info{
+    flex:1;
+}
 
-        .area-info h3 {
-            margin: 0 0 7px;
-            font-size: 16px;
-        }
+.area-info h3{
+    margin:0 0 7px;
+    font-size:16px;
+}
 
-        .area-info p {
-            margin: 0;
-            color: #888;
-            font-size: 13px;
-        }
+.area-info p{
+    margin:0;
+    color:#888;
+    font-size:13px;
+}
 
-        .area-select-btn {
-            border: none;
-            background: #0b4fa3;
-            color: white;
-            padding: 10px 14px;
-            border-radius: 9px;
-        }
+.area-select-btn{
+    border:0;
+    background:#0b4fa3;
+    color:white;
+    padding:10px 14px;
+    border-radius:9px;
+}
 
-        /* AREA PANEL */
+/* SELECTED AREA */
 
-        #selectedAreaPanel {
-            display: none;
-            margin-top: 25px;
-        }
+#selectedAreaPanel{
+    display:none;
+    margin-top:25px;
+}
 
-        .selected-area-header {
-            background: linear-gradient(135deg, #07152f, #0b4fa3);
-            color: white;
-            padding: 25px;
-            border-radius: 18px;
-            margin-bottom: 20px;
-        }
+.selected-area-header{
+    background:linear-gradient(135deg,#07152f,#0b4fa3);
+    color:white;
+    padding:25px;
+    border-radius:18px;
+    margin-bottom:20px;
+}
 
-        .selected-area-header h2 {
-            margin: 0 0 8px;
-        }
+.selected-area-header h2{
+    margin:0 0 8px;
+}
 
-        .sections {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
+.sections{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+}
 
-        .section-card {
-            background: white;
-            border-radius: 15px;
-            padding: 22px;
-            border: 1px solid #e2e7ef;
-        }
+.section-card{
+    background:white;
+    border-radius:15px;
+    padding:22px;
+    border:1px solid #e2e7ef;
+}
 
-        .section-card h3 {
-            margin-top: 0;
-            color: #0b4fa3;
-        }
+.section-card h3{
+    margin-top:0;
+    color:#0b4fa3;
+}
 
-        .section-card button {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            background: #edf4ff;
-            color: #0b4fa3;
-            border-radius: 8px;
-        }
+.section-card button{
+    width:100%;
+    padding:10px;
+    border:0;
+    background:#edf4ff;
+    color:#0b4fa3;
+    border-radius:8px;
+}
 
-        /* MOBILE */
+/* MOBILE */
 
-        @media(max-width: 900px) {
+@media(max-width:900px){
 
-            #sidebar {
-                position: fixed;
-                right: -260px;
-                top: 65px;
-                width: 250px;
-                height: calc(100vh - 65px);
-                z-index: 20;
-            }
+    #sidebar{
+        position:fixed;
+        right:-260px;
+        top:65px;
+        width:250px;
+        height:calc(100vh - 65px);
+        z-index:200;
+    }
 
-            #sidebar.open {
-                right: 0;
-            }
+    #sidebar.open{
+        right:0;
+    }
 
-            .stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
 
-            .areas-container {
-                grid-template-columns: 1fr;
-            }
+    .areas-container{
+        grid-template-columns:1fr;
+    }
 
-            .sections {
-                grid-template-columns: 1fr;
-            }
-        }
+    .sections{
+        grid-template-columns:1fr;
+    }
+}
 
-        @media(max-width: 500px) {
+@media(max-width:500px){
 
-            .content {
-                padding: 15px;
-            }
+    .content{
+        padding:15px;
+    }
 
-            .stats {
-                grid-template-columns: 1fr 1fr;
-            }
+    .area-card{
+        flex-wrap:wrap;
+    }
 
-            .area-card {
-                flex-wrap: wrap;
-            }
-
-            .area-select-btn {
-                width: 100%;
-            }
-        }
-    </style>
+    .area-select-btn{
+        width:100%;
+    }
+}
+</style>
 </head>
 
 <body>
@@ -380,17 +373,17 @@
                 id="email"
                 type="email"
                 placeholder="ایمیل"
-                autocomplete="username"
-            >
+                autocomplete="username">
 
             <input
                 id="password"
                 type="password"
                 placeholder="رمز عبور"
-                autocomplete="current-password"
-            >
+                autocomplete="current-password">
 
-            <button id="loginButton" type="submit">
+            <button
+                id="loginButton"
+                type="submit">
                 ورود به سامانه
             </button>
 
@@ -411,8 +404,7 @@
 
         <button
             class="menu-toggle"
-            onclick="toggleMenu()"
-            aria-label="منو">
+            onclick="toggleMenu()">
             ☰
         </button>
 
@@ -439,25 +431,25 @@
 
             <button
                 class="menu-btn active"
-                onclick="showPage('dashboardPage', this)">
+                onclick="showPage('dashboardPage',this)">
                 🏠 داشبورد
             </button>
 
             <button
                 class="menu-btn"
-                onclick="showPage('areasPage', this)">
+                onclick="showPage('areasPage',this)">
                 🏢 انتخاب حوزه
             </button>
 
             <button
                 class="menu-btn"
-                onclick="showPage('reportsPage', this)">
+                onclick="showPage('reportsPage',this)">
                 📋 گزارش‌ها
             </button>
 
             <button
                 class="menu-btn"
-                onclick="showPage('settingsPage', this)">
+                onclick="showPage('settingsPage',this)">
                 ⚙️ تنظیمات
             </button>
 
@@ -474,7 +466,8 @@
 
         <main class="content">
 
-            <!-- DASHBOARD PAGE -->
+
+            <!-- DASHBOARD -->
 
             <section
                 id="dashboardPage"
@@ -508,10 +501,6 @@
 
                 </div>
 
-                <h3>
-                    دسترسی سریع
-                </h3>
-
                 <button
                     class="area-select-btn"
                     onclick="showPage('areasPage')">
@@ -521,7 +510,7 @@
             </section>
 
 
-            <!-- AREAS PAGE -->
+            <!-- AREAS -->
 
             <section
                 id="areasPage"
@@ -542,7 +531,7 @@
                 </div>
 
 
-                <!-- SELECTED AREA -->
+                <!-- AREA PANEL -->
 
                 <div id="selectedAreaPanel">
 
@@ -553,7 +542,7 @@
                         </h2>
 
                         <div>
-                            بخش‌های قابل دسترسی این حوزه
+                            بخش‌های این حوزه
                         </div>
 
                     </div>
@@ -563,44 +552,32 @@
 
                         <div class="section-card">
                             <h3>شمسا</h3>
-                            <button>
-                                ثبت گزارش
-                            </button>
+                            <button>ثبت گزارش</button>
                         </div>
 
                         <div class="section-card">
                             <h3>متنا</h3>
-                            <button>
-                                ثبت گزارش
-                            </button>
+                            <button>ثبت گزارش</button>
                         </div>
 
                         <div class="section-card">
                             <h3>مپتا</h3>
-                            <button>
-                                ثبت گزارش
-                            </button>
+                            <button>ثبت گزارش</button>
                         </div>
 
                         <div class="section-card">
                             <h3>نسرا</h3>
-                            <button>
-                                ثبت گزارش
-                            </button>
+                            <button>ثبت گزارش</button>
                         </div>
 
                         <div class="section-card">
                             <h3>رصد</h3>
-                            <button>
-                                ثبت گزارش
-                            </button>
+                            <button>ثبت گزارش</button>
                         </div>
 
                         <div class="section-card">
                             <h3>رسانه محله</h3>
-                            <button>
-                                ثبت گزارش
-                            </button>
+                            <button>ثبت گزارش</button>
                         </div>
 
                     </div>
@@ -621,7 +598,7 @@
                 </h2>
 
                 <div class="stat-card">
-                    گزارش‌های ثبت‌شده در این بخش نمایش داده خواهند شد.
+                    گزارش‌های ثبت‌شده در این قسمت نمایش داده می‌شوند.
                 </div>
 
             </section>
@@ -638,7 +615,7 @@
                 </h2>
 
                 <div class="stat-card">
-                    تنظیمات سامانه در این قسمت قرار می‌گیرد.
+                    تنظیمات سامانه
                 </div>
 
             </section>
@@ -650,195 +627,182 @@
 </div>
 
 
-<script src="app.js?v=5"></script>
+<script src="app.js?v=6"></script>
 
 
 <script>
 
-    // جلوگیری از رفرش شدن صفحه هنگام ورود
+document
+.getElementById("loginForm")
+.addEventListener("submit",function(event){
+
+    event.preventDefault();
+
+    login();
+
+});
+
+
+function toggleMenu(){
+
+    const sidebar =
+        document.getElementById("sidebar");
+
+    if(sidebar){
+        sidebar.classList.toggle("open");
+    }
+
+}
+
+
+function showPage(pageId,button){
+
     document
-        .getElementById("loginForm")
-        .addEventListener("submit", function(event) {
+    .querySelectorAll(".page")
+    .forEach(function(page){
 
-            event.preventDefault();
+        page.style.display="none";
 
-            login();
+    });
 
+
+    const page =
+        document.getElementById(pageId);
+
+    if(page){
+        page.style.display="block";
+    }
+
+
+    document
+    .querySelectorAll(".menu-btn")
+    .forEach(function(btn){
+
+        btn.classList.remove("active");
+
+    });
+
+
+    if(button){
+        button.classList.add("active");
+    }
+
+
+    const titles={
+
+        dashboardPage:"داشبورد",
+        areasPage:"انتخاب حوزه",
+        reportsPage:"گزارش‌ها",
+        settingsPage:"تنظیمات"
+
+    };
+
+
+    const title =
+        document.getElementById("pageTitle");
+
+    if(title){
+
+        title.textContent =
+            titles[pageId] ||
+            "سامانه راهبرد شوشتر";
+
+    }
+
+
+    const sidebar =
+        document.getElementById("sidebar");
+
+    if(
+        sidebar &&
+        window.innerWidth<=900
+    ){
+
+        sidebar.classList.remove("open");
+
+    }
+
+
+    if(
+        pageId==="areasPage" &&
+        typeof loadAreas==="function"
+    ){
+
+        loadAreas();
+
+    }
+
+}
+
+
+window.selectArea =
+async function(areaId){
+
+    if(
+        typeof supabaseClient==="undefined" ||
+        !supabaseClient
+    ){
+
+        alert("اتصال به سامانه برقرار نیست.");
+
+        return;
+
+    }
+
+
+    const result =
+        await supabaseClient
+        .from("areas")
+        .select("*")
+        .eq("id",areaId)
+        .single();
+
+
+    if(result.error){
+
+        console.error(result.error);
+
+        alert("خطا در دریافت اطلاعات حوزه.");
+
+        return;
+
+    }
+
+
+    const area=result.data;
+
+    window.selectedArea=area;
+
+
+    const name =
+        document.getElementById(
+            "selectedAreaName"
+        );
+
+    if(name){
+        name.textContent=area.name;
+    }
+
+
+    const panel =
+        document.getElementById(
+            "selectedAreaPanel"
+        );
+
+    if(panel){
+
+        panel.style.display="block";
+
+        panel.scrollIntoView({
+            behavior:"smooth",
+            block:"start"
         });
 
-
-    // نمایش/بستن منوی موبایل
-    function toggleMenu() {
-
-        const sidebar =
-            document.getElementById("sidebar");
-
-        if (!sidebar) return;
-
-        sidebar.classList.toggle("open");
-
     }
 
-
-    // نمایش صفحه
-    function showPage(pageId, button) {
-
-        document
-            .querySelectorAll(".page")
-            .forEach(function(page) {
-
-                page.style.display = "none";
-
-            });
-
-
-        const page =
-            document.getElementById(pageId);
-
-        if (page) {
-
-            page.style.display = "block";
-
-        }
-
-
-        document
-            .querySelectorAll(".menu-btn")
-            .forEach(function(btn) {
-
-                btn.classList.remove("active");
-
-            });
-
-
-        if (button) {
-
-            button.classList.add("active");
-
-        }
-
-
-        const titles = {
-
-            dashboardPage: "داشبورد",
-            areasPage: "انتخاب حوزه",
-            reportsPage: "گزارش‌ها",
-            settingsPage: "تنظیمات"
-
-        };
-
-
-        const title =
-            document.getElementById("pageTitle");
-
-        if (title) {
-
-            title.textContent =
-                titles[pageId] ||
-                "سامانه راهبرد شوشتر";
-
-        }
-
-
-        // بستن منو در موبایل
-        const sidebar =
-            document.getElementById("sidebar");
-
-        if (
-            sidebar &&
-            window.innerWidth <= 900
-        ) {
-
-            sidebar.classList.remove("open");
-
-        }
-
-
-        // دریافت حوزه‌ها
-        if (
-            pageId === "areasPage" &&
-            typeof loadAreas === "function"
-        ) {
-
-            loadAreas();
-
-        }
-
-    }
-
-
-    // انتخاب حوزه
-    window.selectArea =
-        async function(areaId) {
-
-            if (
-                typeof supabaseClient === "undefined" ||
-                !supabaseClient
-            ) {
-
-                alert("اتصال به سامانه برقرار نیست.");
-                return;
-
-            }
-
-
-            const result =
-                await supabaseClient
-                    .from("areas")
-                    .select("*")
-                    .eq("id", areaId)
-                    .single();
-
-
-            if (result.error) {
-
-                console.error(result.error);
-
-                alert("خطا در دریافت اطلاعات حوزه.");
-                return;
-
-            }
-
-
-            const area = result.data;
-
-
-            window.selectedArea = area;
-
-
-            const name =
-                document.getElementById(
-                    "selectedAreaName"
-                );
-
-            if (name) {
-
-                name.textContent =
-                    area.name;
-
-            }
-
-
-            const panel =
-                document.getElementById(
-                    "selectedAreaPanel"
-                );
-
-            if (panel) {
-
-                panel.style.display = "block";
-
-            }
-
-
-            panel?.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-
-        };
+};
 
 </script>
 
 </body>
-    </html>
+</html>
