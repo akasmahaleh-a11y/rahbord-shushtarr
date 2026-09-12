@@ -1,938 +1,842 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سامانه راهبرد شوشتر</title>
-
-<style>
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-    font-family:Tahoma,Arial,sans-serif;
-}
-
-body{
-    background:#f1f5f9;
-    color:#172033;
-}
-
-/* LOGIN */
-
-#loginPage{
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-    background:
-        radial-gradient(circle at 10% 20%,rgba(14,165,233,.25),transparent 30%),
-        radial-gradient(circle at 90% 80%,rgba(37,99,235,.35),transparent 35%),
-        linear-gradient(135deg,#020617,#0f2b66);
-}
-
-.login-box{
-    width:100%;
-    max-width:430px;
-    padding:38px 30px;
-    border:1px solid rgba(255,255,255,.15);
-    border-radius:28px;
-    background:rgba(255,255,255,.97);
-    box-shadow:0 30px 90px rgba(0,0,0,.4);
-}
-
-.logo{
-    width:82px;
-    height:82px;
-    margin:auto auto 20px;
-    border-radius:24px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:white;
-    font-size:34px;
-    font-weight:bold;
-    background:linear-gradient(135deg,#2563eb,#06b6d4);
-    box-shadow:0 12px 35px rgba(37,99,235,.4);
-}
-
-.login-title{
-    text-align:center;
-    font-size:25px;
-    font-weight:bold;
-    color:#0f172a;
-}
-
-.login-subtitle{
-    text-align:center;
-    margin:10px 0 30px;
-    color:#64748b;
-    font-size:13px;
-}
-
-.input-group{
-    margin-bottom:18px;
-}
-
-.input-group label{
-    display:block;
-    margin-bottom:8px;
-    font-size:13px;
-    font-weight:bold;
-}
-
-.input-group input{
-    width:100%;
-    padding:15px;
-    border:1px solid #dbe4ef;
-    border-radius:14px;
-    background:#f8fafc;
-    outline:none;
-    font-size:14px;
-}
-
-.input-group input:focus{
-    border-color:#2563eb;
-    background:white;
-    box-shadow:0 0 0 4px rgba(37,99,235,.1);
-}
-
-#loginButton{
-    width:100%;
-    border:0;
-    border-radius:14px;
-    padding:15px;
-    color:white;
-    background:linear-gradient(135deg,#2563eb,#0891b2);
-    font-size:15px;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-#loginError{
-    min-height:22px;
-    text-align:center;
-    color:#dc2626;
-    margin-top:14px;
-    font-size:13px;
-}
-
-/* DASHBOARD */
-
-#dashboard{
-    display:none;
-    min-height:100vh;
-}
-
-.sidebar{
-    position:fixed;
-    right:0;
-    top:0;
-    bottom:0;
-    width:270px;
-    padding:20px 15px;
-    background:linear-gradient(180deg,#020617,#0b1f49);
-    color:white;
-    z-index:1000;
-}
-
-.brand{
-    padding:10px 12px 24px;
-    border-bottom:1px solid rgba(255,255,255,.1);
-    margin-bottom:20px;
-}
-
-.brand h2{
-    font-size:19px;
-}
-
-.brand p{
-    margin-top:7px;
-    color:#93c5fd;
-    font-size:11px;
-}
-
-.menu-title{
-    color:#64748b;
-    font-size:11px;
-    padding:10px 13px;
-}
-
-.menu-btn{
-    width:100%;
-    padding:13px 14px;
-    margin-bottom:5px;
-    border:0;
-    border-radius:12px;
-    background:transparent;
-    color:#cbd5e1;
-    text-align:right;
-    cursor:pointer;
-    font-size:13px;
-}
-
-.menu-btn:hover,
-.menu-btn.active{
-    background:linear-gradient(90deg,#2563eb,#0891b2);
-    color:white;
-}
-
-.logout-btn{
-    margin-top:20px;
-    color:#fca5a5;
-}
-
-.main-content{
-    width:calc(100% - 270px);
-    margin-right:270px;
-}
-
-.topbar{
-    height:75px;
-    background:white;
-    border-bottom:1px solid #e2e8f0;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 28px;
-    position:sticky;
-    top:0;
-    z-index:100;
-}
-
-.topbar h1{
-    font-size:20px;
-}
-
-.user-area{
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-
-.user-avatar{
-    width:38px;
-    height:38px;
-    border-radius:12px;
-    background:#dbeafe;
-    color:#2563eb;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:bold;
-}
-
-.user-badge{
-    color:#1d4ed8;
-    font-size:12px;
-    font-weight:bold;
-}
-
-.page{
-    padding:28px;
-}
-
-/* HERO */
-
-.hero{
-    position:relative;
-    overflow:hidden;
-    border-radius:25px;
-    padding:30px;
-    color:white;
-    background:
-        radial-gradient(circle at 90% 20%,rgba(255,255,255,.18),transparent 25%),
-        linear-gradient(135deg,#0f2b66,#2563eb,#0891b2);
-    box-shadow:0 18px 45px rgba(37,99,235,.2);
-    margin-bottom:25px;
-}
-
-.hero h2{
-    font-size:25px;
-    margin-bottom:10px;
-}
-
-.hero p{
-    color:#dbeafe;
-    font-size:13px;
-}
-
-.hero-tag{
-    display:inline-block;
-    margin-bottom:13px;
-    padding:7px 12px;
-    border-radius:30px;
-    background:rgba(255,255,255,.13);
-    border:1px solid rgba(255,255,255,.18);
-    font-size:11px;
-}
-
-/* STATS */
-
-.stats-grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:16px;
-    margin-bottom:30px;
-}
-
-.stat-card{
-    position:relative;
-    overflow:hidden;
-    background:white;
-    border:1px solid #e2e8f0;
-    border-radius:19px;
-    padding:21px;
-    box-shadow:0 8px 25px rgba(15,23,42,.05);
-}
-
-.stat-icon{
-    width:42px;
-    height:42px;
-    border-radius:12px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:#eff6ff;
-    color:#2563eb;
-    font-size:19px;
-    margin-bottom:13px;
-}
-
-.stat-card small{
-    color:#64748b;
-    font-size:12px;
-}
-
-.stat-card strong{
-    display:block;
-    margin-top:7px;
-    font-size:28px;
-    color:#0f2b66;
-}
-
-/* SECTION HEADER */
-
-.section-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:16px;
-}
-
-.section-header h3{
-    font-size:19px;
-}
-
-.section-header span{
-    color:#64748b;
-    font-size:12px;
-}
-
-/* AREAS */
-
-.areas-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:15px;
-}
-
-.area-card{
-    background:white;
-    border:1px solid #e2e8f0;
-    border-radius:18px;
-    padding:17px;
-    display:flex;
-    align-items:center;
-    gap:15px;
-    cursor:pointer;
-    transition:.2s;
-    box-shadow:0 7px 20px rgba(15,23,42,.04);
-}
-
-.area-card:hover{
-    transform:translateY(-3px);
-    border-color:#60a5fa;
-    box-shadow:0 15px 30px rgba(37,99,235,.1);
-}
-
-.area-number{
-    width:48px;
-    height:48px;
-    flex-shrink:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:14px;
-    color:#2563eb;
-    background:linear-gradient(135deg,#dbeafe,#ecfeff);
-    font-weight:bold;
-    font-size:18px;
-}
-
-.area-info strong{
-    display:block;
-    font-size:13px;
-    margin-bottom:6px;
-}
-
-.area-info small{
-    color:#64748b;
-    font-size:11px;
-}
-
-/* OTHER PAGES */
-
-.panel{
-    background:white;
-    border:1px solid #e2e8f0;
-    border-radius:22px;
-    padding:25px;
-    box-shadow:0 8px 25px rgba(15,23,42,.05);
-}
-
-.panel h3{
-    margin-bottom:10px;
-}
-
-.empty{
-    text-align:center;
-    padding:40px 10px;
-    color:#64748b;
-    font-size:13px;
-}
-
-.mobile-menu{
-    display:none;
-    border:0;
-    background:#eff6ff;
-    color:#2563eb;
-    border-radius:10px;
-    padding:9px 12px;
-    font-size:20px;
-}
-
-/* MOBILE */
-
-@media(max-width:950px){
-
-    .sidebar{
-        transform:translateX(100%);
-        transition:.25s;
-    }
-
-    .sidebar.open{
-        transform:translateX(0);
-    }
-
-    .main-content{
-        width:100%;
-        margin-right:0;
-    }
-
-    .mobile-menu{
-        display:block;
-    }
-
-    .stats-grid{
-        grid-template-columns:repeat(2,1fr);
-    }
-}
-
-@media(max-width:600px){
-
-    .page{
-        padding:15px;
-    }
-
-    .topbar{
-        padding:0 15px;
-    }
-
-    .topbar h1{
-        font-size:16px;
-    }
-
-    .user-badge{
-        display:none;
-    }
-
-    .hero{
-        padding:22px;
-    }
-
-    .hero h2{
-        font-size:20px;
-    }
-
-    .stats-grid{
-        gap:10px;
-    }
-
-    .stat-card{
-        padding:15px;
-    }
-
-    .stat-card strong{
-        font-size:23px;
-    }
-
-    .areas-grid{
-        grid-template-columns:1fr;
-    }
-
-    .login-box{
-        padding:30px 20px;
-    }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>سامانه راهبرد شوشتر</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Tahoma, Arial, sans-serif;
+            background: #f4f7fb;
+            color: #172033;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        /* LOGIN */
+
+        #loginPage {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #07152f, #0b4fa3);
+            padding: 20px;
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            border-radius: 22px;
+            padding: 35px;
+            box-shadow: 0 20px 60px rgba(0,0,0,.25);
+        }
+
+        .login-box h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #0b4fa3;
+        }
+
+        .login-box p {
+            text-align: center;
+            color: #777;
+            margin-bottom: 30px;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        #loginButton {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #0b4fa3;
+            color: white;
+            font-size: 16px;
+        }
+
+        #loginError {
+            color: #d32f2f;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        /* APP */
+
+        #dashboard {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 65px;
+            background: white;
+            border-bottom: 1px solid #e4e8ef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .menu-toggle {
+            border: none;
+            background: transparent;
+            font-size: 27px;
+            color: #0b4fa3;
+        }
+
+        .user-badge {
+            color: #0b4fa3;
+            font-weight: bold;
+        }
+
+        .layout {
+            display: flex;
+        }
+
+        /* SIDEBAR */
+
+        #sidebar {
+            width: 250px;
+            min-height: calc(100vh - 65px);
+            background: #07152f;
+            color: white;
+            padding: 20px 12px;
+            transition: .3s;
+        }
+
+        .sidebar-title {
+            padding: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .menu-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            background: transparent;
+            color: white;
+            text-align: right;
+            border-radius: 10px;
+            margin-bottom: 7px;
+            font-size: 15px;
+        }
+
+        .menu-btn:hover,
+        .menu-btn.active {
+            background: #0b4fa3;
+        }
+
+        .logout-btn {
+            width: 100%;
+            margin-top: 30px;
+            padding: 13px;
+            border: 1px solid #ffffff44;
+            background: transparent;
+            color: white;
+            border-radius: 10px;
+        }
+
+        /* CONTENT */
+
+        .content {
+            flex: 1;
+            padding: 25px;
+            min-width: 0;
+        }
+
+        .page {
+            display: none;
+        }
+
+        #dashboardPage {
+            display: block;
+        }
+
+        .page-title {
+            margin-bottom: 25px;
+        }
+
+        /* STATS */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 22px;
+            border-radius: 16px;
+            border: 1px solid #e7ebf2;
+        }
+
+        .stat-card h3 {
+            margin: 0;
+            color: #777;
+            font-size: 14px;
+        }
+
+        .stat-card strong {
+            display: block;
+            font-size: 30px;
+            color: #0b4fa3;
+            margin-top: 10px;
+        }
+
+        /* AREAS */
+
+        .areas-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .area-card {
+            background: white;
+            border: 1px solid #e2e7ef;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .area-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: #e8f1ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .area-info {
+            flex: 1;
+        }
+
+        .area-info h3 {
+            margin: 0 0 7px;
+            font-size: 16px;
+        }
+
+        .area-info p {
+            margin: 0;
+            color: #888;
+            font-size: 13px;
+        }
+
+        .area-select-btn {
+            border: none;
+            background: #0b4fa3;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 9px;
+        }
+
+        /* AREA PANEL */
+
+        #selectedAreaPanel {
+            display: none;
+            margin-top: 25px;
+        }
+
+        .selected-area-header {
+            background: linear-gradient(135deg, #07152f, #0b4fa3);
+            color: white;
+            padding: 25px;
+            border-radius: 18px;
+            margin-bottom: 20px;
+        }
+
+        .selected-area-header h2 {
+            margin: 0 0 8px;
+        }
+
+        .sections {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 15px;
+            padding: 22px;
+            border: 1px solid #e2e7ef;
+        }
+
+        .section-card h3 {
+            margin-top: 0;
+            color: #0b4fa3;
+        }
+
+        .section-card button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background: #edf4ff;
+            color: #0b4fa3;
+            border-radius: 8px;
+        }
+
+        /* MOBILE */
+
+        @media(max-width: 900px) {
+
+            #sidebar {
+                position: fixed;
+                right: -260px;
+                top: 65px;
+                width: 250px;
+                height: calc(100vh - 65px);
+                z-index: 20;
+            }
+
+            #sidebar.open {
+                right: 0;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .areas-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sections {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width: 500px) {
+
+            .content {
+                padding: 15px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .area-card {
+                flex-wrap: wrap;
+            }
+
+            .area-select-btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
 <!-- LOGIN -->
 
-<section id="loginPage">
+<div id="loginPage">
 
-<div class="login-box">
+    <div class="login-box">
 
-    <div class="logo">ر</div>
+        <h1>سامانه راهبرد شوشتر</h1>
 
-    <div class="login-title">
-        سامانه راهبرد شوشتر
-    </div>
+        <p>ورود کاربران سامانه</p>
 
-    <div class="login-subtitle">
-        سامانه مدیریت، ثبت و پایش گزارشات
-    </div>
+        <form id="loginForm">
 
-    <form id="loginForm">
-
-        <div class="input-group">
-            <label>ایمیل</label>
             <input
                 id="email"
                 type="email"
-                placeholder="ایمیل خود را وارد کنید"
+                placeholder="ایمیل"
                 autocomplete="username"
             >
-        </div>
 
-        <div class="input-group">
-            <label>رمز عبور</label>
             <input
                 id="password"
                 type="password"
-                placeholder="رمز عبور خود را وارد کنید"
+                placeholder="رمز عبور"
                 autocomplete="current-password"
             >
-        </div>
 
-        <button id="loginButton" type="submit">
-            ورود به سامانه
-        </button>
+            <button id="loginButton" type="submit">
+                ورود به سامانه
+            </button>
+
+        </form>
 
         <div id="loginError"></div>
 
-    </form>
+    </div>
 
 </div>
-
-</section>
 
 
 <!-- DASHBOARD -->
 
-<section id="dashboard">
+<div id="dashboard">
 
-<!-- SIDEBAR -->
+    <div class="topbar">
 
-<aside id="sidebar" class="sidebar">
+        <button
+            class="menu-toggle"
+            onclick="toggleMenu()"
+            aria-label="منو">
+            ☰
+        </button>
 
-    <div class="brand">
-        <h2>سامانه راهبرد شوشتر</h2>
-        <p>مرکز مدیریت گزارشات</p>
-    </div>
+        <strong id="pageTitle">
+            داشبورد
+        </strong>
 
-    <div class="menu-title">
-        منوی اصلی
-    </div>
-
-    <button
-        class="menu-btn active"
-        onclick="showPage('dashboardPage',this)"
-    >
-        🏠 داشبورد
-    </button>
-
-    <button
-        class="menu-btn"
-        onclick="showPage('areasPage',this)"
-    >
-        🏢 انتخاب حوزه
-    </button>
-
-    <button
-        class="menu-btn"
-        onclick="showPage('reportsPage',this)"
-    >
-        📋 گزارش‌ها
-    </button>
-
-    <div class="menu-title">
-        مدیریت
-    </div>
-
-    <button
-        class="menu-btn"
-        onclick="showPage('settingsPage',this)"
-    >
-        ⚙️ تنظیمات
-    </button>
-
-    <button
-        class="menu-btn logout-btn"
-        onclick="logout()"
-    >
-        🚪 خروج
-    </button>
-
-</aside>
-
-
-<!-- MAIN -->
-
-<main class="main-content">
-
-<header class="topbar">
-
-    <button
-        class="mobile-menu"
-        onclick="toggleMenu()"
-    >
-        ☰
-    </button>
-
-    <h1 id="pageTitle">
-        داشبورد
-    </h1>
-
-    <div class="user-area">
-
-        <div class="user-avatar">
-            م
-        </div>
-
-        <div class="user-badge">
-            مدیر اصلی
-        </div>
-
-    </div>
-
-</header>
-
-
-<!-- DASHBOARD PAGE -->
-
-<div id="dashboardPage" class="page">
-
-    <div class="hero">
-
-        <span class="hero-tag">
-            پنل مدیریت سامانه
-        </span>
-
-        <h2>
-            خوش آمدید 👋
-        </h2>
-
-        <p>
-            وضعیت گزارشات و عملکرد حوزه‌های سامانه راهبرد شوشتر
-            را از این قسمت مدیریت کنید.
-        </p>
-
-    </div>
-
-
-    <div class="stats-grid">
-
-        <div class="stat-card">
-
-            <div class="stat-icon">📊</div>
-
-            <small>
-                کل گزارش‌های تأیید شده
-            </small>
-
-            <strong id="totalReports">
-                0
-            </strong>
-
-        </div>
-
-
-        <div class="stat-card">
-
-            <div class="stat-icon">📅</div>
-
-            <small>
-                گزارش‌های امروز
-            </small>
-
-            <strong id="todayReports">
-                0
-            </strong>
-
-        </div>
-
-
-        <div class="stat-card">
-
-            <div class="stat-icon">📈</div>
-
-            <small>
-                گزارش‌های این ماه
-            </small>
-
-            <strong id="monthReports">
-                0
-            </strong>
-
-        </div>
-
-
-        <div class="stat-card">
-
-            <div class="stat-icon">📸</div>
-
-            <small>
-                تصاویر ثبت شده
-            </small>
-
-            <strong id="photoCount">
-                0
-            </strong>
-
-        </div>
-
-    </div>
-
-
-    <div class="section-header">
-
-        <h3>
-            حوزه‌های سامانه
-        </h3>
-
-        <span>
-            ۱۰ حوزه فعال
+        <span class="user-badge">
+            کاربر
         </span>
 
     </div>
 
 
-    <div class="areas-grid">
+    <div class="layout">
 
-        <div class="area-card">
-            <div class="area-number">۱</div>
-            <div class="area-info">
-                <strong>حوزه یک روستایی</strong>
-                <small>امام محمد باقر (ع)</small>
-            </div>
-        </div>
+        <!-- SIDEBAR -->
 
-        <div class="area-card">
-            <div class="area-number">۲</div>
-            <div class="area-info">
-                <strong>حوزه دو روستایی</strong>
-                <small>امام سجاد (ع)</small>
-            </div>
-        </div>
+        <aside id="sidebar">
 
-        <div class="area-card">
-            <div class="area-number">۳</div>
-            <div class="area-info">
-                <strong>حوزه سه روستایی</strong>
-                <small>علی بن ابی‌طالب (ع)</small>
+            <div class="sidebar-title">
+                راهبرد شوشتر
             </div>
-        </div>
 
-        <div class="area-card">
-            <div class="area-number">۴</div>
-            <div class="area-info">
-                <strong>حوزه چهار روستایی</strong>
-                <small>امام جعفر صادق (ع)</small>
-            </div>
-        </div>
+            <button
+                class="menu-btn active"
+                onclick="showPage('dashboardPage', this)">
+                🏠 داشبورد
+            </button>
 
-        <div class="area-card">
-            <div class="area-number">۵</div>
-            <div class="area-info">
-                <strong>حوزه پنج روستایی</strong>
-                <small>امام موسی کاظم (ع)</small>
-            </div>
-        </div>
+            <button
+                class="menu-btn"
+                onclick="showPage('areasPage', this)">
+                🏢 انتخاب حوزه
+            </button>
 
-        <div class="area-card">
-            <div class="area-number">۶</div>
-            <div class="area-info">
-                <strong>حوزه یک شهری</strong>
-                <small>محمد رسول‌الله (ص)</small>
-            </div>
-        </div>
+            <button
+                class="menu-btn"
+                onclick="showPage('reportsPage', this)">
+                📋 گزارش‌ها
+            </button>
 
-        <div class="area-card">
-            <div class="area-number">۷</div>
-            <div class="area-info">
-                <strong>حوزه دو شهری</strong>
-                <small>امام حسین (ع)</small>
-            </div>
-        </div>
+            <button
+                class="menu-btn"
+                onclick="showPage('settingsPage', this)">
+                ⚙️ تنظیمات
+            </button>
 
-        <div class="area-card">
-            <div class="area-number">۸</div>
-            <div class="area-info">
-                <strong>حوزه سه شهری</strong>
-                <small>امام رضا (ع)</small>
-            </div>
-        </div>
+            <button
+                class="logout-btn"
+                onclick="logout()">
+                خروج
+            </button>
 
-        <div class="area-card">
-            <div class="area-number">۹</div>
-            <div class="area-info">
-                <strong>حوزه حضرت زینب (س)</strong>
-                <small>حوزه خواهران</small>
-            </div>
-        </div>
+        </aside>
 
-        <div class="area-card">
-            <div class="area-number">۱۰</div>
-            <div class="area-info">
-                <strong>حوزه حضرت فاطمه (س)</strong>
-                <small>حوزه خواهران</small>
-            </div>
-        </div>
+
+        <!-- CONTENT -->
+
+        <main class="content">
+
+            <!-- DASHBOARD PAGE -->
+
+            <section
+                id="dashboardPage"
+                class="page">
+
+                <h2 class="page-title">
+                    داشبورد سامانه
+                </h2>
+
+                <div class="stats">
+
+                    <div class="stat-card">
+                        <h3>کل گزارش‌های تأیید شده</h3>
+                        <strong id="totalReports">0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>گزارش‌های امروز</h3>
+                        <strong id="todayReports">0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>گزارش‌های این ماه</h3>
+                        <strong id="monthReports">0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>تعداد تصاویر</h3>
+                        <strong id="photoCount">0</strong>
+                    </div>
+
+                </div>
+
+                <h3>
+                    دسترسی سریع
+                </h3>
+
+                <button
+                    class="area-select-btn"
+                    onclick="showPage('areasPage')">
+                    انتخاب حوزه
+                </button>
+
+            </section>
+
+
+            <!-- AREAS PAGE -->
+
+            <section
+                id="areasPage"
+                class="page">
+
+                <h2 class="page-title">
+                    انتخاب حوزه
+                </h2>
+
+                <div
+                    id="areasContainer"
+                    class="areas-container">
+
+                    <div>
+                        در حال دریافت حوزه‌ها...
+                    </div>
+
+                </div>
+
+
+                <!-- SELECTED AREA -->
+
+                <div id="selectedAreaPanel">
+
+                    <div class="selected-area-header">
+
+                        <h2 id="selectedAreaName">
+                            حوزه
+                        </h2>
+
+                        <div>
+                            بخش‌های قابل دسترسی این حوزه
+                        </div>
+
+                    </div>
+
+
+                    <div class="sections">
+
+                        <div class="section-card">
+                            <h3>شمسا</h3>
+                            <button>
+                                ثبت گزارش
+                            </button>
+                        </div>
+
+                        <div class="section-card">
+                            <h3>متنا</h3>
+                            <button>
+                                ثبت گزارش
+                            </button>
+                        </div>
+
+                        <div class="section-card">
+                            <h3>مپتا</h3>
+                            <button>
+                                ثبت گزارش
+                            </button>
+                        </div>
+
+                        <div class="section-card">
+                            <h3>نسرا</h3>
+                            <button>
+                                ثبت گزارش
+                            </button>
+                        </div>
+
+                        <div class="section-card">
+                            <h3>رصد</h3>
+                            <button>
+                                ثبت گزارش
+                            </button>
+                        </div>
+
+                        <div class="section-card">
+                            <h3>رسانه محله</h3>
+                            <button>
+                                ثبت گزارش
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- REPORTS -->
+
+            <section
+                id="reportsPage"
+                class="page">
+
+                <h2 class="page-title">
+                    گزارش‌ها
+                </h2>
+
+                <div class="stat-card">
+                    گزارش‌های ثبت‌شده در این بخش نمایش داده خواهند شد.
+                </div>
+
+            </section>
+
+
+            <!-- SETTINGS -->
+
+            <section
+                id="settingsPage"
+                class="page">
+
+                <h2 class="page-title">
+                    تنظیمات
+                </h2>
+
+                <div class="stat-card">
+                    تنظیمات سامانه در این قسمت قرار می‌گیرد.
+                </div>
+
+            </section>
+
+        </main>
 
     </div>
 
 </div>
 
 
-<!-- AREAS -->
-
-<div
-    id="areasPage"
-    class="page"
-    style="display:none"
->
-
-    <div class="panel">
-
-        <h3>
-            انتخاب حوزه
-        </h3>
-
-        <div class="empty">
-            حوزه‌های دارای دسترسی شما در این قسمت نمایش داده خواهد شد.
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- REPORTS -->
-
-<div
-    id="reportsPage"
-    class="page"
-    style="display:none"
->
-
-    <div class="panel">
-
-        <h3>
-            گزارش‌ها
-        </h3>
-
-        <div class="empty">
-            گزارش‌های ثبت‌شده در این قسمت نمایش داده خواهد شد.
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- SETTINGS -->
-
-<div
-    id="settingsPage"
-    class="page"
-    style="display:none"
->
-
-    <div class="panel">
-
-        <h3>
-            تنظیمات سامانه
-        </h3>
-
-        <div class="empty">
-            تنظیمات حساب کاربری و سامانه در این قسمت قرار خواهد گرفت.
-        </div>
-
-    </div>
-
-</div>
-
-</main>
-
-</section>
-
-
-<!-- SCRIPTS -->
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script src="app.js?v=3"></script>
+<script src="app.js?v=5"></script>
 
 
 <script>
 
-document.addEventListener("DOMContentLoaded",function(){
-
-    const form =
-        document.getElementById("loginForm");
-
-    if(form){
-
-        form.addEventListener("submit",function(event){
+    // جلوگیری از رفرش شدن صفحه هنگام ورود
+    document
+        .getElementById("loginForm")
+        .addEventListener("submit", function(event) {
 
             event.preventDefault();
 
-            if(typeof login === "function"){
-
-                login();
-
-            }else{
-
-                const error =
-                    document.getElementById("loginError");
-
-                if(error){
-                    error.textContent =
-                        "خطا در بارگذاری سامانه.";
-                }
-
-            }
+            login();
 
         });
 
+
+    // نمایش/بستن منوی موبایل
+    function toggleMenu() {
+
+        const sidebar =
+            document.getElementById("sidebar");
+
+        if (!sidebar) return;
+
+        sidebar.classList.toggle("open");
+
     }
 
-});
+
+    // نمایش صفحه
+    function showPage(pageId, button) {
+
+        document
+            .querySelectorAll(".page")
+            .forEach(function(page) {
+
+                page.style.display = "none";
+
+            });
+
+
+        const page =
+            document.getElementById(pageId);
+
+        if (page) {
+
+            page.style.display = "block";
+
+        }
+
+
+        document
+            .querySelectorAll(".menu-btn")
+            .forEach(function(btn) {
+
+                btn.classList.remove("active");
+
+            });
+
+
+        if (button) {
+
+            button.classList.add("active");
+
+        }
+
+
+        const titles = {
+
+            dashboardPage: "داشبورد",
+            areasPage: "انتخاب حوزه",
+            reportsPage: "گزارش‌ها",
+            settingsPage: "تنظیمات"
+
+        };
+
+
+        const title =
+            document.getElementById("pageTitle");
+
+        if (title) {
+
+            title.textContent =
+                titles[pageId] ||
+                "سامانه راهبرد شوشتر";
+
+        }
+
+
+        // بستن منو در موبایل
+        const sidebar =
+            document.getElementById("sidebar");
+
+        if (
+            sidebar &&
+            window.innerWidth <= 900
+        ) {
+
+            sidebar.classList.remove("open");
+
+        }
+
+
+        // دریافت حوزه‌ها
+        if (
+            pageId === "areasPage" &&
+            typeof loadAreas === "function"
+        ) {
+
+            loadAreas();
+
+        }
+
+    }
+
+
+    // انتخاب حوزه
+    window.selectArea =
+        async function(areaId) {
+
+            if (
+                typeof supabaseClient === "undefined" ||
+                !supabaseClient
+            ) {
+
+                alert("اتصال به سامانه برقرار نیست.");
+                return;
+
+            }
+
+
+            const result =
+                await supabaseClient
+                    .from("areas")
+                    .select("*")
+                    .eq("id", areaId)
+                    .single();
+
+
+            if (result.error) {
+
+                console.error(result.error);
+
+                alert("خطا در دریافت اطلاعات حوزه.");
+                return;
+
+            }
+
+
+            const area = result.data;
+
+
+            window.selectedArea = area;
+
+
+            const name =
+                document.getElementById(
+                    "selectedAreaName"
+                );
+
+            if (name) {
+
+                name.textContent =
+                    area.name;
+
+            }
+
+
+            const panel =
+                document.getElementById(
+                    "selectedAreaPanel"
+                );
+
+            if (panel) {
+
+                panel.style.display = "block";
+
+            }
+
+
+            panel?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+        };
 
 </script>
 
