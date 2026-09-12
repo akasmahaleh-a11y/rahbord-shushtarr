@@ -1,897 +1,887 @@
-const SUPABASE_URL =
-    "https://ruxurkublhqtmwjflyxp.supabase.co";
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
 
-const SUPABASE_ANON_KEY =
-    "sb_publishable_11au_IG9FFtRdUpaeFtDwQ_hhsRHhc8";
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-let supabaseClient = null;
-let currentUserProfile = null;
+    <title>سامانه راهبرد شوشتر</title>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-/* =========================
-   اتصال به Supabase
-========================= */
+    <style>
 
-function initSupabase() {
-    try {
-        if (!window.supabase) {
-            console.error("Supabase پیدا نشد.");
-            return false;
+        * {
+            box-sizing: border-box;
         }
 
-        supabaseClient = window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_ANON_KEY
-        );
-
-        window.supabaseClient = supabaseClient;
-
-        console.log("✅ اتصال Supabase برقرار شد");
-
-        return true;
-
-    } catch (error) {
-        console.error("❌ خطا در اتصال Supabase:", error);
-        return false;
-    }
-}
-
-
-/* =========================
-   ورود
-========================= */
-
-async function login() {
-
-    const emailInput =
-        document.getElementById("email");
-
-    const passwordInput =
-        document.getElementById("password");
-
-    const errorBox =
-        document.getElementById("loginError");
-
-    const loginButton =
-        document.getElementById("loginButton");
-
-
-    if (!emailInput || !passwordInput) {
-        console.error("فیلد ورود پیدا نشد.");
-        return;
-    }
-
-
-    const email =
-        emailInput.value.trim();
-
-    const password =
-        passwordInput.value;
-
-
-    if (errorBox) {
-        errorBox.textContent = "";
-    }
-
-
-    if (!email || !password) {
-
-        if (errorBox) {
-            errorBox.textContent =
-                "ایمیل و رمز عبور را وارد کنید.";
+        body {
+            margin: 0;
+            font-family: Tahoma, Arial, sans-serif;
+            background: #f4f7fb;
+            color: #172033;
         }
 
-        return;
-    }
-
-
-    if (!supabaseClient) {
-
-        const connected =
-            initSupabase();
-
-        if (!connected) {
-
-            if (errorBox) {
-                errorBox.textContent =
-                    "اتصال به سامانه برقرار نشد.";
-            }
-
-            return;
-        }
-    }
-
-
-    if (loginButton) {
-
-        loginButton.disabled = true;
-        loginButton.textContent =
-            "در حال ورود...";
-    }
-
-
-    try {
-
-        const {
-            data,
-            error
-        } =
-            await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
-
-
-        if (error) {
-
-            console.error(
-                "Login error:",
-                error
-            );
-
-            if (errorBox) {
-
-                errorBox.textContent =
-                    "ایمیل یا رمز عبور اشتباه است.";
-            }
-
-            return;
+        button,
+        input,
+        textarea,
+        select {
+            font-family: inherit;
         }
 
-
-        if (!data || !data.user) {
-
-            if (errorBox) {
-                errorBox.textContent =
-                    "کاربر پیدا نشد.";
-            }
-
-            return;
-        }
-
-
-        console.log(
-            "✅ ورود موفق:",
-            data.user.email
-        );
-
-
-        await loadUserProfile();
-
-
-        const loginPage =
-            document.getElementById("loginPage");
-
-        const dashboard =
-            document.getElementById("dashboard");
-
-
-        if (loginPage) {
-            loginPage.style.display = "none";
-        }
-
-
-        if (dashboard) {
-            dashboard.style.display = "block";
-        }
-
-
-        await loadDashboard();
-        await loadAreas();
-
-
-    } catch (error) {
-
-        console.error(
-            "❌ خطای ورود:",
-            error
-        );
-
-        if (errorBox) {
-            errorBox.textContent =
-                "خطایی هنگام ورود رخ داد.";
-        }
-
-    } finally {
-
-        if (loginButton) {
-
-            loginButton.disabled = false;
-
-            loginButton.textContent =
-                "ورود به سامانه";
-        }
-    }
-}
-
-
-/* =========================
-   دریافت پروفایل
-========================= */
-
-async function loadUserProfile() {
-
-    try {
-
-        if (!supabaseClient) {
-            return null;
-        }
-
-
-        const {
-            data: userData,
-            error: userError
-        } =
-            await supabaseClient.auth.getUser();
-
-
-        if (userError || !userData.user) {
-
-            console.error(
-                "خطای دریافت کاربر:",
-                userError
-            );
-
-            return null;
-        }
-
-
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-                .from("user_profiles")
-                .select("*")
-                .eq("id", userData.user.id)
-                .single();
-
-
-        if (error) {
-
-            console.error(
-                "خطای پروفایل:",
-                error
-            );
-
-            return null;
-        }
-
-
-        currentUserProfile = data;
-
-        window.currentUserProfile = data;
-
-
-        console.log(
-            "👤 پروفایل:",
-            data
-        );
-
-
-        document
-            .querySelectorAll(".user-badge")
-            .forEach(function (element) {
-
-                element.textContent =
-                    data.full_name || "کاربر";
-
-            });
-
-
-        return data;
-
-
-    } catch (error) {
-
-        console.error(
-            "Profile error:",
-            error
-        );
-
-        return null;
-    }
-}
-
-
-/* =========================
-   داشبورد
-========================= */
-
-async function loadDashboard() {
-
-    if (!supabaseClient) {
-        return;
-    }
-
-
-    try {
-
-        /* کل گزارش‌ها */
-
-        const {
-            count: totalReports,
-            error: totalError
-        } =
-            await supabaseClient
-                .from("reports")
-                .select("*", {
-                    count: "exact",
-                    head: true
-                })
-                .eq("status", "approved");
-
-
-        if (totalError) {
-            console.error(
-                "Total reports:",
-                totalError
-            );
-        }
-
-
-        updateDashboardNumber(
-            "totalReports",
-            totalReports || 0
-        );
-
-
-        /* گزارش‌های امروز */
-
-        const today =
-            new Date()
-                .toISOString()
-                .split("T")[0];
-
-
-        const {
-            count: todayReports,
-            error: todayError
-        } =
-            await supabaseClient
-                .from("reports")
-                .select("*", {
-                    count: "exact",
-                    head: true
-                })
-                .eq("status", "approved")
-                .eq("report_date", today);
-
-
-        if (todayError) {
-            console.error(
-                "Today reports:",
-                todayError
-            );
-        }
-
-
-        updateDashboardNumber(
-            "todayReports",
-            todayReports || 0
-        );
-
-
-        /* گزارش‌های این ماه */
-
-        const now =
-            new Date();
-
-
-        const firstDay =
-            new Date(
-                now.getFullYear(),
-                now.getMonth(),
-                1
-            )
-                .toISOString()
-                .split("T")[0];
-
-
-        const {
-            count: monthReports,
-            error: monthError
-        } =
-            await supabaseClient
-                .from("reports")
-                .select("*", {
-                    count: "exact",
-                    head: true
-                })
-                .eq("status", "approved")
-                .gte(
-                    "report_date",
-                    firstDay
+        /* ================= LOGIN ================= */
+
+        #loginPage {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background:
+                linear-gradient(
+                    135deg,
+                    #0b5ed7,
+                    #0a2f6b
                 );
+        }
 
+        .login-box {
+            width: 100%;
+            max-width: 430px;
+            background: white;
+            border-radius: 22px;
+            padding: 35px 28px;
+            box-shadow:
+                0 20px 60px rgba(0,0,0,.25);
+        }
 
-        if (monthError) {
-            console.error(
-                "Month reports:",
-                monthError
+        .logo {
+            width: 75px;
+            height: 75px;
+            margin: 0 auto 18px;
+            border-radius: 20px;
+            background: #0b5ed7;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .login-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 28px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            border: 1px solid #d8e0eb;
+            border-radius: 12px;
+            padding: 13px;
+            font-size: 15px;
+            outline: none;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #0b5ed7;
+        }
+
+        .login-button {
+            width: 100%;
+            border: 0;
+            border-radius: 13px;
+            padding: 14px;
+            background: #0b5ed7;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-button:hover {
+            background: #084db5;
+        }
+
+        .login-button:disabled {
+            opacity: .7;
+        }
+
+        #loginError {
+            color: #dc3545;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        /* ================= DASHBOARD ================= */
+
+        #dashboard {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ================= SIDEBAR ================= */
+
+        #sidebar {
+            width: 270px;
+            background: #092f6d;
+            color: white;
+            padding: 22px 15px;
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 1000;
+            transition: .3s;
+        }
+
+        .sidebar-logo {
+            text-align: center;
+            font-size: 21px;
+            font-weight: bold;
+            padding: 15px 5px 25px;
+        }
+
+        .user-badge {
+            display: block;
+            text-align: center;
+            background: rgba(255,255,255,.1);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 22px;
+            font-size: 13px;
+        }
+
+        .menu-btn {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            color: white;
+            padding: 13px 14px;
+            margin-bottom: 7px;
+            border-radius: 11px;
+            text-align: right;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .menu-btn:hover,
+        .menu-btn.active {
+            background: rgba(255,255,255,.14);
+        }
+
+        .logout-btn {
+            margin-top: 25px;
+            background: #dc3545;
+        }
+
+        .logout-btn:hover {
+            background: #bb2d3b;
+        }
+
+        /* ================= MAIN ================= */
+
+        .main-content {
+            width: calc(100% - 270px);
+            margin-right: 270px;
+            padding: 25px;
+        }
+
+        .topbar {
+            background: white;
+            border-radius: 15px;
+            padding: 18px 22px;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 18px rgba(0,0,0,.05);
+        }
+
+        .page-title {
+            font-size: 21px;
+            font-weight: bold;
+        }
+
+        .mobile-menu {
+            display: none;
+            border: 0;
+            background: #0b5ed7;
+            color: white;
+            border-radius: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+        }
+
+        /* ================= PAGES ================= */
+
+        .page {
+            display: none;
+        }
+
+        #dashboardPage {
+            display: block;
+        }
+
+        .welcome-box {
+            background: linear-gradient(
+                135deg,
+                #0b5ed7,
+                #174ea6
             );
+            color: white;
+            border-radius: 18px;
+            padding: 25px;
+            margin-bottom: 22px;
         }
 
-
-        updateDashboardNumber(
-            "monthReports",
-            monthReports || 0
-        );
-
-
-        /* تعداد عکس‌ها */
-
-        const {
-            count: photoCount,
-            error: photoError
-        } =
-            await supabaseClient
-                .from("report_photos")
-                .select("*", {
-                    count: "exact",
-                    head: true
-                });
-
-
-        if (photoError) {
-            console.error(
-                "Photo count:",
-                photoError
-            );
+        .welcome-box h2 {
+            margin-top: 0;
         }
 
+        /* ================= STATS ================= */
 
-        updateDashboardNumber(
-            "photoCount",
-            photoCount || 0
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "❌ خطای داشبورد:",
-            error
-        );
-    }
-}
-
-
-/* =========================
-   بروزرسانی اعداد
-========================= */
-
-function updateDashboardNumber(
-    id,
-    value
-) {
-
-    const element =
-        document.getElementById(id);
-
-
-    if (element) {
-        element.textContent = value;
-    }
-}
-
-
-/* =========================
-   نمایش حوزه‌ها
-========================= */
-
-async function loadAreas() {
-
-    if (!supabaseClient) {
-        return;
-    }
-
-
-    const container =
-        document.getElementById(
-            "areasContainer"
-        );
-
-
-    if (!container) {
-        return;
-    }
-
-
-    container.innerHTML =
-        "<div class='loading'>در حال دریافت حوزه‌ها...</div>";
-
-
-    try {
-
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-                .from("areas")
-                .select("*")
-                .order("id");
-
-
-        if (error) {
-
-            console.error(
-                "خطای دریافت حوزه‌ها:",
-                error
-            );
-
-
-            container.innerHTML =
-                "<div class='error-box'>دریافت حوزه‌ها انجام نشد.</div>";
-
-            return;
+        .stats-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
         }
 
-
-        if (!data || data.length === 0) {
-
-            container.innerHTML =
-                "<div class='empty-box'>هیچ حوزه‌ای برای نمایش وجود ندارد.</div>";
-
-            return;
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow:
+                0 4px 18px rgba(0,0,0,.05);
         }
 
+        .stat-title {
+            color: #718096;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
 
-        container.innerHTML = "";
+        .stat-number {
+            font-size: 30px;
+            font-weight: bold;
+            color: #0b5ed7;
+        }
+
+        /* ================= SECTION ================= */
+
+        .section-title {
+            font-size: 19px;
+            font-weight: bold;
+            margin-bottom: 18px;
+        }
+
+        .areas-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .area-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-align: right;
+            transition: .2s;
+        }
+
+        .area-card:hover {
+            transform: translateY(-2px);
+            border-color: #0b5ed7;
+            box-shadow:
+                0 5px 18px rgba(0,0,0,.07);
+        }
+
+        .area-number {
+            min-width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #e8f1ff;
+            color: #0b5ed7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .area-name {
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 1.7;
+        }
+
+        /* ================= SELECTED AREA ================= */
+
+        #selectedAreaPanel {
+            display: none;
+            margin-top: 25px;
+        }
+
+        .selected-area {
+            background: white;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow:
+                0 4px 18px rgba(0,0,0,.05);
+        }
+
+        .selected-area-title {
+            color: #0b5ed7;
+            font-size: 19px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .sections-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .section-card {
+            background: #f8faff;
+            border: 1px solid #dce8f8;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            text-align: center;
+            transition: .2s;
+        }
+
+        .section-card:hover {
+            background: #edf5ff;
+            border-color: #0b5ed7;
+            transform: translateY(-2px);
+        }
+
+        .section-card-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .section-card-name {
+            font-weight: bold;
+        }
+
+        /* ================= SUBJECTS ================= */
+
+        #subjectsPanel {
+            display: none;
+            margin-top: 22px;
+            background: white;
+            border-radius: 18px;
+            padding: 22px;
+        }
+
+        .subjects-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .subject-btn {
+            border: 1px solid #dce8f8;
+            background: #f8faff;
+            padding: 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: right;
+        }
+
+        .subject-btn:hover {
+            border-color: #0b5ed7;
+            background: #edf5ff;
+        }
+
+        /* ================= REPORT FORM ================= */
+
+        #reportFormPanel {
+            display: none;
+            margin-top: 22px;
+            background: white;
+            border-radius: 18px;
+            padding: 22px;
+        }
+
+        .report-form-title {
+            font-size: 19px;
+            font-weight: bold;
+            color: #0b5ed7;
+            margin-bottom: 20px;
+        }
+
+        .submit-report-btn {
+            width: 100%;
+            border: 0;
+            background: #0b5ed7;
+            color: white;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* ================= MESSAGES ================= */
+
+        .loading,
+        .empty-box,
+        .error-box {
+            background: white;
+            padding: 20px;
+            border-radius: 14px;
+            text-align: center;
+        }
+
+        .error-box {
+            color: #dc3545;
+        }
+
+        /* ================= MOBILE ================= */
+
+        @media (max-width: 900px) {
+
+            #sidebar {
+                transform: translateX(100%);
+            }
+
+            #sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                width: 100%;
+                margin-right: 0;
+                padding: 15px;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            .stats-grid {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .sections-grid {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            .login-box {
+                padding: 28px 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-number {
+                font-size: 25px;
+            }
+
+            .areas-grid,
+            .subjects-grid,
+            .sections-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                padding: 14px;
+            }
+
+            .page-title {
+                font-size: 18px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
 
 
-        data.forEach(function (area) {
+<!-- ==================================================
+     LOGIN
+================================================== -->
 
-            const card =
-                document.createElement("button");
+<div id="loginPage">
+
+    <div class="login-box">
+
+        <div class="logo">
+            ر
+        </div>
+
+        <div class="login-title">
+            سامانه راهبرد شوشتر
+        </div>
+
+        <div class="login-subtitle">
+            سامانه مدیریت و ثبت گزارشات
+        </div>
 
 
-            card.className =
-                "area-card";
+        <!-- مهم: جلوگیری از Refresh شدن صفحه -->
+
+        <form
+            id="loginForm"
+            onsubmit="event.preventDefault(); login();"
+        >
+
+            <div class="form-group">
+
+                <label for="email">
+                    کد کاربری / ایمیل
+                </label>
+
+                <input
+                    type="text"
+                    id="email"
+                    autocomplete="username"
+                    placeholder="کد کاربری یا ایمیل"
+                >
+
+            </div>
 
 
-            card.type =
-                "button";
+            <div class="form-group">
+
+                <label for="password">
+                    رمز عبور
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    autocomplete="current-password"
+                    placeholder="رمز عبور"
+                >
+
+            </div>
 
 
-            card.innerHTML = `
-                <div class="area-number">
-                    ${area.id}
+            <button
+                type="submit"
+                id="loginButton"
+                class="login-button"
+            >
+                ورود به سامانه
+            </button>
+
+
+            <div id="loginError"></div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ==================================================
+     DASHBOARD
+================================================== -->
+
+<div id="dashboard">
+
+    <div class="app-layout">
+
+
+        <!-- SIDEBAR -->
+
+        <aside id="sidebar">
+
+            <div class="sidebar-logo">
+                سامانه راهبرد شوشتر
+            </div>
+
+            <span class="user-badge">
+                مدیر اصلی
+            </span>
+
+
+            <button
+                class="menu-btn active"
+                onclick="showPage('dashboardPage', this)"
+            >
+                🏠 داشبورد
+            </button>
+
+
+            <button
+                class="menu-btn"
+                onclick="showPage('areasPage', this)"
+            >
+                📍 انتخاب حوزه
+            </button>
+
+
+            <button
+                class="menu-btn"
+                onclick="showPage('reportsPage', this)"
+            >
+                📋 گزارش‌ها
+            </button>
+
+
+            <button
+                class="menu-btn"
+                onclick="showPage('settingsPage', this)"
+            >
+                ⚙️ تنظیمات
+            </button>
+
+
+            <button
+                class="menu-btn logout-btn"
+                onclick="logout()"
+            >
+                🚪 خروج
+            </button>
+
+        </aside>
+
+
+        <!-- MAIN -->
+
+        <main class="main-content">
+
+
+            <div class="topbar">
+
+                <div
+                    id="pageTitle"
+                    class="page-title"
+                >
+                    داشبورد
                 </div>
 
-                <div class="area-name">
-                    ${escapeHtml(area.name)}
+
+                <button
+                    class="mobile-menu"
+                    onclick="toggleMenu()"
+                >
+                    ☰ منو
+                </button>
+
+            </div>
+
+
+            <!-- ================= DASHBOARD PAGE ================= -->
+
+            <section
+                id="dashboardPage"
+                class="page"
+            >
+
+                <div class="welcome-box">
+
+                    <h2>
+                        خوش آمدید 👋
+                    </h2>
+
+                    <div>
+                        به سامانه راهبرد شوشتر خوش آمدید.
+                    </div>
+
                 </div>
-            `;
 
 
-            card.onclick =
-                function () {
+                <div class="stats-grid">
 
-                    selectArea(area.id);
+                    <div class="stat-card">
 
-                };
+                        <div class="stat-title">
+                            کل گزارش‌های تأیید شده
+                        </div>
 
+                        <div
+                            id="totalReports"
+                            class="stat-number"
+                        >
+                            0
+                        </div>
 
-            container.appendChild(card);
+                    </div>
 
-        });
 
+                    <div class="stat-card">
 
-        console.log(
-            "✅ حوزه‌ها دریافت شدند:",
-            data.length
-        );
+                        <div class="stat-title">
+                            گزارش‌های امروز
+                        </div>
 
+                        <div
+                            id="todayReports"
+                            class="stat-number"
+                        >
+                            0
+                        </div>
 
-    } catch (error) {
+                    </div>
 
-        console.error(
-            "Areas error:",
-            error
-        );
 
+                    <div class="stat-card">
 
-        container.innerHTML =
-            "<div class='error-box'>خطایی هنگام دریافت حوزه‌ها رخ داد.</div>";
-    }
-}
+                        <div class="stat-title">
+                            گزارش‌های این ماه
+                        </div>
 
+                        <div
+                            id="monthReports"
+                            class="stat-number"
+                        >
+                            0
+                        </div>
 
-/* =========================
-   انتخاب حوزه
-========================= */
+                    </div>
 
-async function selectArea(areaId) {
 
-    if (!supabaseClient) {
-        return;
-    }
+                    <div class="stat-card">
 
+                        <div class="stat-title">
+                            تعداد تصاویر
+                        </div>
 
-    try {
+                        <div
+                            id="photoCount"
+                            class="stat-number"
+                        >
+                            0
+                        </div>
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-                .from("areas")
-                .select("*")
-                .eq("id", areaId)
-                .single();
+                    </div>
 
+                </div>
 
-        if (error) {
+            </section>
 
-            console.error(
-                "خطای حوزه:",
-                error
-            );
 
-            return;
-        }
+            <!-- ================= AREAS PAGE ================= -->
 
+            <section
+                id="areasPage"
+                class="page"
+            >
 
-        window.selectedArea =
-            data;
+                <div class="section-title">
+                    انتخاب حوزه
+                </div>
 
 
-        const panel =
-            document.getElementById(
-                "selectedAreaPanel"
-            );
+                <div
+                    id="areasContainer"
+                    class="areas-grid"
+                >
 
+                    <div class="loading">
+                        در حال دریافت حوزه‌ها...
+                    </div>
 
-        if (!panel) {
-            return;
-        }
+                </div>
 
 
-        panel.style.display =
-            "block";
+                <!-- حوزه انتخاب شده -->
 
+                <div
+                    id="selectedAreaPanel"
+                >
 
-        const title =
-            document.getElementById(
-                "selectedAreaName"
-            );
+                    <div class="selected-area">
 
+                        <div
+                            id="selectedAreaName"
+                            class="selected-area-title"
+                        >
+                            حوزه
+                        </div>
 
-        if (title) {
 
-            title.textContent =
-                data.name;
-        }
+                        <div class="section-title">
+                            انتخاب بخش
+                        </div>
 
 
-        panel.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
+                        <div class="sections-grid">
 
 
-        console.log(
-            "📍 حوزه انتخاب شد:",
-            data
-        );
+                            <div
+                                class="section-card"
+                                onclick="openSection('شمسا')"
+                            >
 
+                                <div class="section-card-icon">
+                                    📱
+                                </div>
 
-    } catch (error) {
+                                <div class="section-card-name">
+                                    شمسا
+                                </div>
 
-        console.error(
-            "Select area error:",
-            error
-        );
-    }
-}
+                            </div>
 
 
-/* =========================
-   خروج
-========================= */
+                            <div
+                                class="section-card"
+                                onclick="openSection('متنا')"
+                            >
 
-async function logout() {
-
-    try {
-
-        if (supabaseClient) {
-
-            await supabaseClient.auth.signOut();
-        }
-
-
-        currentUserProfile = null;
-
-        window.currentUserProfile =
-            null;
-
-
-        const dashboard =
-            document.getElementById(
-                "dashboard"
-            );
-
-
-        const loginPage =
-            document.getElementById(
-                "loginPage"
-            );
-
-
-        if (dashboard) {
-
-            dashboard.style.display =
-                "none";
-        }
-
-
-        if (loginPage) {
-
-            loginPage.style.display =
-                "flex";
-        }
-
-
-        const password =
-            document.getElementById(
-                "password"
-            );
-
-
-        if (password) {
-
-            password.value = "";
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "Logout error:",
-            error
-        );
-    }
-}
-
-
-/* =========================
-   بررسی نشست قبلی
-========================= */
-
-async function checkSession() {
-
-    try {
-
-        if (!supabaseClient) {
-
-            const connected =
-                initSupabase();
-
-            if (!connected) {
-                return;
-            }
-        }
-
-
-        const {
-            data,
-            error
-        } =
-            await supabaseClient.auth.getSession();
-
-
-        if (error) {
-
-            console.error(
-                "Session error:",
-                error
-            );
-
-            return;
-        }
-
-
-        if (data.session) {
-
-            console.log(
-                "✅ نشست قبلی پیدا شد"
-            );
-
-
-            await loadUserProfile();
-
-
-            const loginPage =
-                document.getElementById(
-                    "loginPage"
-                );
-
-
-            const dashboard =
-                document.getElementById(
-                    "dashboard"
-                );
-
-
-            if (loginPage) {
-
-                loginPage.style.display =
-                    "none";
-            }
-
-
-            if (dashboard) {
-
-                dashboard.style.display =
-                    "block";
-            }
-
-
-            await loadDashboard();
-            await loadAreas();
-
-
-        } else {
-
-            console.log(
-                "ℹ️ کاربر وارد نشده است"
-            );
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "Session exception:",
-            error
-        );
-    }
-}
-
-
-/* =========================
-   جلوگیری از کد HTML
-========================= */
-
-function escapeHtml(text) {
-
-    if (text === null || text === undefined) {
-        return "";
-    }
-
-
-    return String(text)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-
-/* =========================
-   شروع سامانه
-========================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    async function () {
-
-        console.log(
-            "🚀 سامانه راهبرد شوشتر"
-        );
-
-
-        const connected =
-            initSupabase();
-
-
-        if (connected) {
-
-            await checkSession();
-        }
-
-    }
-);
+                                <div class="section-card-icon">
+                                    🎬
+                                </div>
