@@ -6,82 +6,131 @@ const SUPABASE_ANON_KEY =
 
 let supabaseClient = null;
 let currentUserProfile = null;
-let selectedArea = null;
 
 
-// ===============================
-// اتصال به Supabase
-// ===============================
+/* =========================
+   اتصال به Supabase
+========================= */
 
 function initSupabase() {
-    if (!window.supabase) {
-        console.error("Supabase پیدا نشد");
+    try {
+        if (!window.supabase) {
+            console.error("Supabase پیدا نشد.");
+            return false;
+        }
+
+        supabaseClient = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_ANON_KEY
+        );
+
+        window.supabaseClient = supabaseClient;
+
+        console.log("✅ اتصال Supabase برقرار شد");
+
+        return true;
+
+    } catch (error) {
+        console.error("❌ خطا در اتصال Supabase:", error);
         return false;
     }
-
-    supabaseClient = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-    );
-
-    console.log("اتصال به Supabase برقرار شد");
-    return true;
 }
 
 
-// ===============================
-// ورود
-// ===============================
+/* =========================
+   ورود
+========================= */
 
 async function login() {
 
-    const email =
-        document.getElementById("email")?.value.trim();
+    const emailInput =
+        document.getElementById("email");
 
-    const password =
-        document.getElementById("password")?.value;
+    const passwordInput =
+        document.getElementById("password");
 
     const errorBox =
         document.getElementById("loginError");
+
+    const loginButton =
+        document.getElementById("loginButton");
+
+
+    if (!emailInput || !passwordInput) {
+        console.error("فیلد ورود پیدا نشد.");
+        return;
+    }
+
+
+    const email =
+        emailInput.value.trim();
+
+    const password =
+        passwordInput.value;
+
 
     if (errorBox) {
         errorBox.textContent = "";
     }
 
+
     if (!email || !password) {
+
         if (errorBox) {
             errorBox.textContent =
                 "ایمیل و رمز عبور را وارد کنید.";
         }
+
         return;
     }
 
+
     if (!supabaseClient) {
-        if (!initSupabase()) {
+
+        const connected =
+            initSupabase();
+
+        if (!connected) {
+
+            if (errorBox) {
+                errorBox.textContent =
+                    "اتصال به سامانه برقرار نشد.";
+            }
+
             return;
         }
     }
 
-    const button =
-        document.getElementById("loginButton");
 
-    if (button) {
-        button.disabled = true;
-        button.textContent = "در حال ورود...";
+    if (loginButton) {
+
+        loginButton.disabled = true;
+        loginButton.textContent =
+            "در حال ورود...";
     }
+
 
     try {
 
-        const { data, error } =
+        const {
+            data,
+            error
+        } =
             await supabaseClient.auth.signInWithPassword({
-                email,
-                password
+                email: email,
+                password: password
             });
 
+
         if (error) {
-            console.error(error);
+
+            console.error(
+                "Login error:",
+                error
+            );
 
             if (errorBox) {
+
                 errorBox.textContent =
                     "ایمیل یا رمز عبور اشتباه است.";
             }
@@ -89,20 +138,54 @@ async function login() {
             return;
         }
 
+
+        if (!data || !data.user) {
+
+            if (errorBox) {
+                errorBox.textContent =
+                    "کاربر پیدا نشد.";
+            }
+
+            return;
+        }
+
+
+        console.log(
+            "✅ ورود موفق:",
+            data.user.email
+        );
+
+
         await loadUserProfile();
 
-        document.getElementById("loginPage").style.display =
-            "none";
 
-        document.getElementById("dashboard").style.display =
-            "block";
+        const loginPage =
+            document.getElementById("loginPage");
+
+        const dashboard =
+            document.getElementById("dashboard");
+
+
+        if (loginPage) {
+            loginPage.style.display = "none";
+        }
+
+
+        if (dashboard) {
+            dashboard.style.display = "block";
+        }
+
 
         await loadDashboard();
         await loadAreas();
 
+
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "❌ خطای ورود:",
+            error
+        );
 
         if (errorBox) {
             errorBox.textContent =
@@ -111,187 +194,109 @@ async function login() {
 
     } finally {
 
-        if (button) {
-            button.disabled = false;
-            button.textContent = "ورود به سامانه";
+        if (loginButton) {
+
+            loginButton.disabled = false;
+
+            loginButton.textContent =
+                "ورود به سامانه";
         }
     }
 }
 
 
-// ===============================
-// دریافت پروفایل کاربر
-// ===============================
+/* =========================
+   دریافت پروفایل
+========================= */
 
 async function loadUserProfile() {
 
-    const {
-        data: {
-            user
+    try {
+
+        if (!supabaseClient) {
+            return null;
         }
-    } = await supabaseClient.auth.getUser();
-
-    if (!user) {
-        return;
-    }
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("user_profiles")
-            .select("*")
-            .eq("id", user.id)
-            .single();
-
-    if (error) {
-        console.error("خطای پروفایل:", error);
-        return;
-    }
-
-    currentUserProfile = data;
-    window.currentUserProfile = data;
-
-    document
-        .querySelectorAll(".user-badge")
-        .forEach(element => {
-            element.textContent =
-                data.full_name || "کاربر";
-        });
-
-    console.log("کاربر:", data);
-}
 
 
-// ===============================
-// دریافت حوزه‌ها از دیتابیس
-// ===============================
+        const {
+            data: userData,
+            error: userError
+        } =
+            await supabaseClient.auth.getUser();
 
-async function loadAreas() {
 
-    if (!supabaseClient) {
-        return;
-    }
+        if (userError || !userData.user) {
 
-    console.log("در حال دریافت حوزه‌ها...");
+            console.error(
+                "خطای دریافت کاربر:",
+                userError
+            );
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("areas")
-            .select("*")
-            .order("id");
+            return null;
+        }
 
-    if (error) {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("user_profiles")
+                .select("*")
+                .eq("id", userData.user.id)
+                .single();
+
+
+        if (error) {
+
+            console.error(
+                "خطای پروفایل:",
+                error
+            );
+
+            return null;
+        }
+
+
+        currentUserProfile = data;
+
+        window.currentUserProfile = data;
+
+
+        console.log(
+            "👤 پروفایل:",
+            data
+        );
+
+
+        document
+            .querySelectorAll(".user-badge")
+            .forEach(function (element) {
+
+                element.textContent =
+                    data.full_name || "کاربر";
+
+            });
+
+
+        return data;
+
+
+    } catch (error) {
+
         console.error(
-            "خطا در دریافت حوزه‌ها:",
+            "Profile error:",
             error
         );
-        return;
+
+        return null;
     }
-
-    console.log("حوزه‌های دریافت شده:", data);
-
-    const container =
-        document.getElementById("areasContainer");
-
-    if (!container) {
-        console.warn(
-            "areasContainer در صفحه پیدا نشد."
-        );
-        return;
-    }
-
-    container.innerHTML = "";
-
-    if (!data || data.length === 0) {
-
-        container.innerHTML = `
-            <div style="
-                padding:30px;
-                text-align:center;
-            ">
-                هنوز حوزه‌ای ثبت نشده است.
-            </div>
-        `;
-
-        return;
-    }
-
-    data.forEach(area => {
-
-        const card =
-            document.createElement("div");
-
-        card.className = "area-card";
-
-        card.innerHTML = `
-            <div class="area-icon">🏢</div>
-
-            <div class="area-info">
-                <h3>${area.name}</h3>
-                <p>حوزه عملیاتی</p>
-            </div>
-
-            <button
-                class="area-select-btn"
-                onclick="selectArea(${area.id})"
-            >
-                انتخاب حوزه
-            </button>
-        `;
-
-        container.appendChild(card);
-    });
 }
 
 
-// ===============================
-// انتخاب حوزه
-// ===============================
-
-async function selectArea(areaId) {
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("areas")
-            .select("*")
-            .eq("id", areaId)
-            .single();
-
-    if (error) {
-        console.error(
-            "خطا در انتخاب حوزه:",
-            error
-        );
-        return;
-    }
-
-    selectedArea = data;
-
-    console.log(
-        "حوزه انتخاب شده:",
-        selectedArea
-    );
-
-    alert(
-        "حوزه انتخاب شد:\n" +
-        selectedArea.name
-    );
-
-    window.selectedArea = selectedArea;
-}
-
-
-// ===============================
-// داشبورد
-// ===============================
+/* =========================
+   داشبورد
+========================= */
 
 async function loadDashboard() {
 
@@ -299,41 +304,171 @@ async function loadDashboard() {
         return;
     }
 
-    const {
-        count,
-        error
-    } =
-        await supabaseClient
-            .from("reports")
-            .select("*", {
-                count: "exact",
-                head: true
-            })
-            .eq("status", "approved");
 
-    if (error) {
+    try {
+
+        /* کل گزارش‌ها */
+
+        const {
+            count: totalReports,
+            error: totalError
+        } =
+            await supabaseClient
+                .from("reports")
+                .select("*", {
+                    count: "exact",
+                    head: true
+                })
+                .eq("status", "approved");
+
+
+        if (totalError) {
+            console.error(
+                "Total reports:",
+                totalError
+            );
+        }
+
+
+        updateDashboardNumber(
+            "totalReports",
+            totalReports || 0
+        );
+
+
+        /* گزارش‌های امروز */
+
+        const today =
+            new Date()
+                .toISOString()
+                .split("T")[0];
+
+
+        const {
+            count: todayReports,
+            error: todayError
+        } =
+            await supabaseClient
+                .from("reports")
+                .select("*", {
+                    count: "exact",
+                    head: true
+                })
+                .eq("status", "approved")
+                .eq("report_date", today);
+
+
+        if (todayError) {
+            console.error(
+                "Today reports:",
+                todayError
+            );
+        }
+
+
+        updateDashboardNumber(
+            "todayReports",
+            todayReports || 0
+        );
+
+
+        /* گزارش‌های این ماه */
+
+        const now =
+            new Date();
+
+
+        const firstDay =
+            new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                1
+            )
+                .toISOString()
+                .split("T")[0];
+
+
+        const {
+            count: monthReports,
+            error: monthError
+        } =
+            await supabaseClient
+                .from("reports")
+                .select("*", {
+                    count: "exact",
+                    head: true
+                })
+                .eq("status", "approved")
+                .gte(
+                    "report_date",
+                    firstDay
+                );
+
+
+        if (monthError) {
+            console.error(
+                "Month reports:",
+                monthError
+            );
+        }
+
+
+        updateDashboardNumber(
+            "monthReports",
+            monthReports || 0
+        );
+
+
+        /* تعداد عکس‌ها */
+
+        const {
+            count: photoCount,
+            error: photoError
+        } =
+            await supabaseClient
+                .from("report_photos")
+                .select("*", {
+                    count: "exact",
+                    head: true
+                });
+
+
+        if (photoError) {
+            console.error(
+                "Photo count:",
+                photoError
+            );
+        }
+
+
+        updateDashboardNumber(
+            "photoCount",
+            photoCount || 0
+        );
+
+
+    } catch (error) {
+
         console.error(
-            "خطای آمار گزارش‌ها:",
+            "❌ خطای داشبورد:",
             error
         );
-        return;
     }
-
-    updateNumber(
-        "totalReports",
-        count || 0
-    );
 }
 
 
-// ===============================
-// نمایش عدد
-// ===============================
+/* =========================
+   بروزرسانی اعداد
+========================= */
 
-function updateNumber(id, value) {
+function updateDashboardNumber(
+    id,
+    value
+) {
 
     const element =
         document.getElementById(id);
+
 
     if (element) {
         element.textContent = value;
@@ -341,134 +476,422 @@ function updateNumber(id, value) {
 }
 
 
-// ===============================
-// نمایش صفحات
-// ===============================
+/* =========================
+   نمایش حوزه‌ها
+========================= */
 
-function showPage(pageId, button) {
+async function loadAreas() {
 
-    document
-        .querySelectorAll(".page")
-        .forEach(page => {
-            page.style.display = "none";
+    if (!supabaseClient) {
+        return;
+    }
+
+
+    const container =
+        document.getElementById(
+            "areasContainer"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML =
+        "<div class='loading'>در حال دریافت حوزه‌ها...</div>";
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("areas")
+                .select("*")
+                .order("id");
+
+
+        if (error) {
+
+            console.error(
+                "خطای دریافت حوزه‌ها:",
+                error
+            );
+
+
+            container.innerHTML =
+                "<div class='error-box'>دریافت حوزه‌ها انجام نشد.</div>";
+
+            return;
+        }
+
+
+        if (!data || data.length === 0) {
+
+            container.innerHTML =
+                "<div class='empty-box'>هیچ حوزه‌ای برای نمایش وجود ندارد.</div>";
+
+            return;
+        }
+
+
+        container.innerHTML = "";
+
+
+        data.forEach(function (area) {
+
+            const card =
+                document.createElement("button");
+
+
+            card.className =
+                "area-card";
+
+
+            card.type =
+                "button";
+
+
+            card.innerHTML = `
+                <div class="area-number">
+                    ${area.id}
+                </div>
+
+                <div class="area-name">
+                    ${escapeHtml(area.name)}
+                </div>
+            `;
+
+
+            card.onclick =
+                function () {
+
+                    selectArea(area.id);
+
+                };
+
+
+            container.appendChild(card);
+
         });
 
-    const page =
-        document.getElementById(pageId);
 
-    if (page) {
-        page.style.display = "block";
-    }
+        console.log(
+            "✅ حوزه‌ها دریافت شدند:",
+            data.length
+        );
 
-    document
-        .querySelectorAll(".menu-btn")
-        .forEach(btn => {
-            btn.classList.remove("active");
-        });
 
-    if (button) {
-        button.classList.add("active");
-    }
+    } catch (error) {
 
-    const titles = {
-        dashboardPage: "داشبورد",
-        areasPage: "انتخاب حوزه",
-        reportsPage: "گزارش‌ها",
-        settingsPage: "تنظیمات"
-    };
+        console.error(
+            "Areas error:",
+            error
+        );
 
-    const title =
-        document.getElementById("pageTitle");
 
-    if (title) {
-        title.textContent =
-            titles[pageId] ||
-            "سامانه راهبرد شوشتر";
-    }
-
-    if (pageId === "areasPage") {
-        loadAreas();
+        container.innerHTML =
+            "<div class='error-box'>خطایی هنگام دریافت حوزه‌ها رخ داد.</div>";
     }
 }
 
 
-// ===============================
-// خروج
-// ===============================
+/* =========================
+   انتخاب حوزه
+========================= */
+
+async function selectArea(areaId) {
+
+    if (!supabaseClient) {
+        return;
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("areas")
+                .select("*")
+                .eq("id", areaId)
+                .single();
+
+
+        if (error) {
+
+            console.error(
+                "خطای حوزه:",
+                error
+            );
+
+            return;
+        }
+
+
+        window.selectedArea =
+            data;
+
+
+        const panel =
+            document.getElementById(
+                "selectedAreaPanel"
+            );
+
+
+        if (!panel) {
+            return;
+        }
+
+
+        panel.style.display =
+            "block";
+
+
+        const title =
+            document.getElementById(
+                "selectedAreaName"
+            );
+
+
+        if (title) {
+
+            title.textContent =
+                data.name;
+        }
+
+
+        panel.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+
+        console.log(
+            "📍 حوزه انتخاب شد:",
+            data
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Select area error:",
+            error
+        );
+    }
+}
+
+
+/* =========================
+   خروج
+========================= */
 
 async function logout() {
 
-    await supabaseClient.auth.signOut();
+    try {
 
-    currentUserProfile = null;
-    selectedArea = null;
+        if (supabaseClient) {
 
-    document.getElementById("dashboard").style.display =
-        "none";
-
-    document.getElementById("loginPage").style.display =
-        "flex";
-}
+            await supabaseClient.auth.signOut();
+        }
 
 
-// ===============================
-// منوی موبایل
-// ===============================
+        currentUserProfile = null;
 
-function toggleMenu() {
+        window.currentUserProfile =
+            null;
 
-    const sidebar =
-        document.getElementById("sidebar");
 
-    if (sidebar) {
-        sidebar.classList.toggle("open");
+        const dashboard =
+            document.getElementById(
+                "dashboard"
+            );
+
+
+        const loginPage =
+            document.getElementById(
+                "loginPage"
+            );
+
+
+        if (dashboard) {
+
+            dashboard.style.display =
+                "none";
+        }
+
+
+        if (loginPage) {
+
+            loginPage.style.display =
+                "flex";
+        }
+
+
+        const password =
+            document.getElementById(
+                "password"
+            );
+
+
+        if (password) {
+
+            password.value = "";
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Logout error:",
+            error
+        );
     }
 }
 
 
-// ===============================
-// بررسی نشست قبلی
-// ===============================
+/* =========================
+   بررسی نشست قبلی
+========================= */
 
 async function checkSession() {
 
-    const {
-        data
-    } =
-        await supabaseClient.auth.getSession();
+    try {
 
-    if (data.session) {
+        if (!supabaseClient) {
 
-        await loadUserProfile();
+            const connected =
+                initSupabase();
 
-        document.getElementById("loginPage").style.display =
-            "none";
+            if (!connected) {
+                return;
+            }
+        }
 
-        document.getElementById("dashboard").style.display =
-            "block";
 
-        await loadDashboard();
-        await loadAreas();
+        const {
+            data,
+            error
+        } =
+            await supabaseClient.auth.getSession();
+
+
+        if (error) {
+
+            console.error(
+                "Session error:",
+                error
+            );
+
+            return;
+        }
+
+
+        if (data.session) {
+
+            console.log(
+                "✅ نشست قبلی پیدا شد"
+            );
+
+
+            await loadUserProfile();
+
+
+            const loginPage =
+                document.getElementById(
+                    "loginPage"
+                );
+
+
+            const dashboard =
+                document.getElementById(
+                    "dashboard"
+                );
+
+
+            if (loginPage) {
+
+                loginPage.style.display =
+                    "none";
+            }
+
+
+            if (dashboard) {
+
+                dashboard.style.display =
+                    "block";
+            }
+
+
+            await loadDashboard();
+            await loadAreas();
+
+
+        } else {
+
+            console.log(
+                "ℹ️ کاربر وارد نشده است"
+            );
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Session exception:",
+            error
+        );
     }
 }
 
 
-// ===============================
-// شروع برنامه
-// ===============================
+/* =========================
+   جلوگیری از کد HTML
+========================= */
+
+function escapeHtml(text) {
+
+    if (text === null || text === undefined) {
+        return "";
+    }
+
+
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* =========================
+   شروع سامانه
+========================= */
 
 document.addEventListener(
     "DOMContentLoaded",
     async function () {
 
         console.log(
-            "سامانه راهبرد شوشتر اجرا شد"
+            "🚀 سامانه راهبرد شوشتر"
         );
 
-        if (!initSupabase()) {
-            return;
+
+        const connected =
+            initSupabase();
+
+
+        if (connected) {
+
+            await checkSession();
         }
 
-        await checkSession();
     }
 );
