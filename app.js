@@ -6,6 +6,7 @@ const SUPABASE_ANON_KEY =
 
 let supabaseClient = null;
 let currentUserProfile = null;
+let selectedArea = null;
 
 
 // ===============================
@@ -13,29 +14,18 @@ let currentUserProfile = null;
 // ===============================
 
 function initSupabase() {
-
-    try {
-
-        if (!window.supabase) {
-            console.error("Supabase library پیدا نشد.");
-            return false;
-        }
-
-        supabaseClient = window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_ANON_KEY
-        );
-
-        console.log("✅ اتصال Supabase برقرار شد");
-
-        return true;
-
-    } catch (error) {
-
-        console.error("❌ خطا در اتصال:", error);
-
+    if (!window.supabase) {
+        console.error("Supabase پیدا نشد");
         return false;
     }
+
+    supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
+
+    console.log("اتصال به Supabase برقرار شد");
+    return true;
 }
 
 
@@ -45,140 +35,74 @@ function initSupabase() {
 
 async function login() {
 
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
-    const errorBox = document.getElementById("loginError");
-    const loginButton = document.getElementById("loginButton");
+    const email =
+        document.getElementById("email")?.value.trim();
 
-    if (!emailInput || !passwordInput) {
-        console.error("فیلدهای ورود پیدا نشدند.");
-        return;
-    }
+    const password =
+        document.getElementById("password")?.value;
 
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
+    const errorBox =
+        document.getElementById("loginError");
 
     if (errorBox) {
         errorBox.textContent = "";
     }
 
     if (!email || !password) {
-
         if (errorBox) {
             errorBox.textContent =
                 "ایمیل و رمز عبور را وارد کنید.";
         }
-
         return;
     }
 
-
-    // اتصال
-
     if (!supabaseClient) {
-
-        const connected = initSupabase();
-
-        if (!connected) {
-
-            if (errorBox) {
-                errorBox.textContent =
-                    "اتصال به سامانه برقرار نشد.";
-            }
-
+        if (!initSupabase()) {
             return;
         }
     }
 
+    const button =
+        document.getElementById("loginButton");
 
-    // حالت در حال ورود
-
-    if (loginButton) {
-        loginButton.disabled = true;
-        loginButton.textContent = "در حال ورود...";
+    if (button) {
+        button.disabled = true;
+        button.textContent = "در حال ورود...";
     }
-
 
     try {
 
-        const result =
+        const { data, error } =
             await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password
+                email,
+                password
             });
 
-
-        const data = result.data;
-        const error = result.error;
-
-
         if (error) {
-
-            console.error("❌ Login error:", error);
-
-            if (errorBox) {
-
-                if (
-                    error.message &&
-                    error.message.toLowerCase().includes("invalid")
-                ) {
-                    errorBox.textContent =
-                        "ایمیل یا رمز عبور اشتباه است.";
-                } else {
-                    errorBox.textContent =
-                        "ورود انجام نشد. دوباره تلاش کنید.";
-                }
-            }
-
-            return;
-        }
-
-
-        if (!data || !data.user) {
+            console.error(error);
 
             if (errorBox) {
                 errorBox.textContent =
-                    "کاربر پیدا نشد.";
+                    "ایمیل یا رمز عبور اشتباه است.";
             }
 
             return;
         }
 
-
-        console.log("✅ ورود موفق:", data.user.email);
-
-
-        // دریافت پروفایل
-
         await loadUserProfile();
 
+        document.getElementById("loginPage").style.display =
+            "none";
 
-        // نمایش داشبورد
-
-        const loginPage =
-            document.getElementById("loginPage");
-
-        const dashboard =
-            document.getElementById("dashboard");
-
-
-        if (loginPage) {
-            loginPage.style.display = "none";
-        }
-
-        if (dashboard) {
-            dashboard.style.display = "block";
-        }
-
-
-        // بارگذاری داشبورد
+        document.getElementById("dashboard").style.display =
+            "block";
 
         await loadDashboard();
-
+        await loadAreas();
 
     } catch (error) {
 
-        console.error("❌ خطای ورود:", error);
+        console.error(error);
 
         if (errorBox) {
             errorBox.textContent =
@@ -187,10 +111,9 @@ async function login() {
 
     } finally {
 
-        if (loginButton) {
-
-            loginButton.disabled = false;
-            loginButton.textContent = "ورود به سامانه";
+        if (button) {
+            button.disabled = false;
+            button.textContent = "ورود به سامانه";
         }
     }
 }
@@ -202,90 +125,167 @@ async function login() {
 
 async function loadUserProfile() {
 
-    try {
-
-        if (!supabaseClient) {
-            return null;
+    const {
+        data: {
+            user
         }
+    } = await supabaseClient.auth.getUser();
 
+    if (!user) {
+        return;
+    }
 
-        const {
-            data: {
-                user
-            },
-            error: userError
-        } = await supabaseClient.auth.getUser();
-
-
-        if (userError || !user) {
-
-            console.error(
-                "خطای دریافت کاربر:",
-                userError
-            );
-
-            return null;
-        }
-
-
-        const {
-            data,
-            error
-        } = await supabaseClient
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
             .from("user_profiles")
             .select("*")
             .eq("id", user.id)
             .single();
 
+    if (error) {
+        console.error("خطای پروفایل:", error);
+        return;
+    }
 
-        if (error) {
+    currentUserProfile = data;
+    window.currentUserProfile = data;
 
-            console.error(
-                "خطای پروفایل:",
-                error
-            );
-
-            return null;
-        }
-
-
-        currentUserProfile = data;
-
-        window.currentUserProfile = data;
-
-
-        console.log(
-            "👤 پروفایل کاربر:",
-            data
-        );
-
-
-        // نمایش نام کاربر
-
-        const badges =
-            document.querySelectorAll(".user-badge");
-
-
-        badges.forEach(function (element) {
-
+    document
+        .querySelectorAll(".user-badge")
+        .forEach(element => {
             element.textContent =
                 data.full_name || "کاربر";
-
         });
 
+    console.log("کاربر:", data);
+}
 
-        return data;
 
+// ===============================
+// دریافت حوزه‌ها از دیتابیس
+// ===============================
 
-    } catch (error) {
+async function loadAreas() {
 
+    if (!supabaseClient) {
+        return;
+    }
+
+    console.log("در حال دریافت حوزه‌ها...");
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("areas")
+            .select("*")
+            .order("id");
+
+    if (error) {
         console.error(
-            "خطای پروفایل:",
+            "خطا در دریافت حوزه‌ها:",
             error
         );
-
-        return null;
+        return;
     }
+
+    console.log("حوزه‌های دریافت شده:", data);
+
+    const container =
+        document.getElementById("areasContainer");
+
+    if (!container) {
+        console.warn(
+            "areasContainer در صفحه پیدا نشد."
+        );
+        return;
+    }
+
+    container.innerHTML = "";
+
+    if (!data || data.length === 0) {
+
+        container.innerHTML = `
+            <div style="
+                padding:30px;
+                text-align:center;
+            ">
+                هنوز حوزه‌ای ثبت نشده است.
+            </div>
+        `;
+
+        return;
+    }
+
+    data.forEach(area => {
+
+        const card =
+            document.createElement("div");
+
+        card.className = "area-card";
+
+        card.innerHTML = `
+            <div class="area-icon">🏢</div>
+
+            <div class="area-info">
+                <h3>${area.name}</h3>
+                <p>حوزه عملیاتی</p>
+            </div>
+
+            <button
+                class="area-select-btn"
+                onclick="selectArea(${area.id})"
+            >
+                انتخاب حوزه
+            </button>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+
+// ===============================
+// انتخاب حوزه
+// ===============================
+
+async function selectArea(areaId) {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("areas")
+            .select("*")
+            .eq("id", areaId)
+            .single();
+
+    if (error) {
+        console.error(
+            "خطا در انتخاب حوزه:",
+            error
+        );
+        return;
+    }
+
+    selectedArea = data;
+
+    console.log(
+        "حوزه انتخاب شده:",
+        selectedArea
+    );
+
+    alert(
+        "حوزه انتخاب شد:\n" +
+        selectedArea.name
+    );
+
+    window.selectedArea = selectedArea;
 }
 
 
@@ -299,163 +299,38 @@ async function loadDashboard() {
         return;
     }
 
+    const {
+        count,
+        error
+    } =
+        await supabaseClient
+            .from("reports")
+            .select("*", {
+                count: "exact",
+                head: true
+            })
+            .eq("status", "approved");
 
-    try {
-
-        // کل گزارش‌های تأیید شده
-
-        const {
-            count: totalReports,
-            error: totalError
-        } =
-            await supabaseClient
-                .from("reports")
-                .select("*", {
-                    count: "exact",
-                    head: true
-                })
-                .eq("status", "approved");
-
-
-        if (totalError) {
-            console.error(
-                "Total reports:",
-                totalError
-            );
-        }
-
-
-        updateDashboardNumber(
-            "totalReports",
-            totalReports || 0
-        );
-
-
-        // تاریخ امروز
-
-        const today =
-            new Date()
-                .toISOString()
-                .split("T")[0];
-
-
-        // گزارش امروز
-
-        const {
-            count: todayReports,
-            error: todayError
-        } =
-            await supabaseClient
-                .from("reports")
-                .select("*", {
-                    count: "exact",
-                    head: true
-                })
-                .eq("status", "approved")
-                .eq("report_date", today);
-
-
-        if (todayError) {
-            console.error(
-                "Today reports:",
-                todayError
-            );
-        }
-
-
-        updateDashboardNumber(
-            "todayReports",
-            todayReports || 0
-        );
-
-
-        // ابتدای ماه
-
-        const now = new Date();
-
-        const firstDay =
-            new Date(
-                now.getFullYear(),
-                now.getMonth(),
-                1
-            )
-                .toISOString()
-                .split("T")[0];
-
-
-        // گزارش‌های ماه
-
-        const {
-            count: monthReports,
-            error: monthError
-        } =
-            await supabaseClient
-                .from("reports")
-                .select("*", {
-                    count: "exact",
-                    head: true
-                })
-                .eq("status", "approved")
-                .gte("report_date", firstDay);
-
-
-        if (monthError) {
-            console.error(
-                "Month reports:",
-                monthError
-            );
-        }
-
-
-        updateDashboardNumber(
-            "monthReports",
-            monthReports || 0
-        );
-
-
-        // تعداد تصاویر
-
-        const {
-            count: photoCount,
-            error: photoError
-        } =
-            await supabaseClient
-                .from("report_photos")
-                .select("*", {
-                    count: "exact",
-                    head: true
-                });
-
-
-        if (photoError) {
-            console.error(
-                "Photo count:",
-                photoError
-            );
-        }
-
-
-        updateDashboardNumber(
-            "photoCount",
-            photoCount || 0
-        );
-
-
-    } catch (error) {
-
+    if (error) {
         console.error(
-            "❌ خطای داشبورد:",
+            "خطای آمار گزارش‌ها:",
             error
         );
+        return;
     }
+
+    updateNumber(
+        "totalReports",
+        count || 0
+    );
 }
 
 
 // ===============================
-// تغییر عددهای داشبورد
+// نمایش عدد
 // ===============================
 
-function updateDashboardNumber(id, value) {
+function updateNumber(id, value) {
 
     const element =
         document.getElementById(id);
@@ -467,231 +342,72 @@ function updateDashboardNumber(id, value) {
 
 
 // ===============================
+// نمایش صفحات
+// ===============================
+
+function showPage(pageId, button) {
+
+    document
+        .querySelectorAll(".page")
+        .forEach(page => {
+            page.style.display = "none";
+        });
+
+    const page =
+        document.getElementById(pageId);
+
+    if (page) {
+        page.style.display = "block";
+    }
+
+    document
+        .querySelectorAll(".menu-btn")
+        .forEach(btn => {
+            btn.classList.remove("active");
+        });
+
+    if (button) {
+        button.classList.add("active");
+    }
+
+    const titles = {
+        dashboardPage: "داشبورد",
+        areasPage: "انتخاب حوزه",
+        reportsPage: "گزارش‌ها",
+        settingsPage: "تنظیمات"
+    };
+
+    const title =
+        document.getElementById("pageTitle");
+
+    if (title) {
+        title.textContent =
+            titles[pageId] ||
+            "سامانه راهبرد شوشتر";
+    }
+
+    if (pageId === "areasPage") {
+        loadAreas();
+    }
+}
+
+
+// ===============================
 // خروج
 // ===============================
 
 async function logout() {
 
-    try {
+    await supabaseClient.auth.signOut();
 
-        if (supabaseClient) {
+    currentUserProfile = null;
+    selectedArea = null;
 
-            await supabaseClient.auth.signOut();
+    document.getElementById("dashboard").style.display =
+        "none";
 
-        }
-
-
-        currentUserProfile = null;
-        window.currentUserProfile = null;
-
-
-        const dashboard =
-            document.getElementById("dashboard");
-
-        const loginPage =
-            document.getElementById("loginPage");
-
-
-        if (dashboard) {
-            dashboard.style.display = "none";
-        }
-
-        if (loginPage) {
-            loginPage.style.display = "flex";
-        }
-
-
-        const password =
-            document.getElementById("password");
-
-
-        if (password) {
-            password.value = "";
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "Logout error:",
-            error
-        );
-    }
-}
-
-
-// ===============================
-// بررسی نشست قبلی
-// ===============================
-
-async function checkSession() {
-
-    try {
-
-        if (!supabaseClient) {
-
-            const connected =
-                initSupabase();
-
-            if (!connected) {
-                return;
-            }
-        }
-
-
-        const {
-            data,
-            error
-        } =
-            await supabaseClient.auth.getSession();
-
-
-        if (error) {
-
-            console.error(
-                "Session error:",
-                error
-            );
-
-            return;
-        }
-
-
-        const session = data.session;
-
-
-        if (session) {
-
-            console.log(
-                "✅ نشست قبلی پیدا شد"
-            );
-
-
-            await loadUserProfile();
-
-
-            const loginPage =
-                document.getElementById("loginPage");
-
-            const dashboard =
-                document.getElementById("dashboard");
-
-
-            if (loginPage) {
-                loginPage.style.display = "none";
-            }
-
-            if (dashboard) {
-                dashboard.style.display = "block";
-            }
-
-
-            await loadDashboard();
-
-        } else {
-
-            console.log(
-                "ℹ️ کاربر وارد نشده است"
-            );
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "Session exception:",
-            error
-        );
-    }
-}
-
-
-// ===============================
-// تغییر صفحات
-// ===============================
-
-function showPage(pageId, button) {
-
-    const pages =
-        document.querySelectorAll(".page");
-
-
-    pages.forEach(function (page) {
-
-        page.style.display = "none";
-
-    });
-
-
-    const selectedPage =
-        document.getElementById(pageId);
-
-
-    if (selectedPage) {
-
-        selectedPage.style.display =
-            "block";
-    }
-
-
-    const titles = {
-
-        dashboardPage: "داشبورد",
-
-        areasPage: "انتخاب حوزه",
-
-        reportsPage: "گزارش‌ها",
-
-        settingsPage: "تنظیمات"
-    };
-
-
-    const pageTitle =
-        document.getElementById("pageTitle");
-
-
-    if (pageTitle) {
-
-        pageTitle.textContent =
-            titles[pageId] ||
-            "سامانه راهبرد شوشتر";
-    }
-
-
-    // فعال کردن دکمه
-
-    const buttons =
-        document.querySelectorAll(".menu-btn");
-
-
-    buttons.forEach(function (btn) {
-
-        btn.classList.remove("active");
-
-    });
-
-
-    if (button) {
-
-        button.classList.add("active");
-
-    }
-
-
-    // بستن منوی موبایل
-
-    const sidebar =
-        document.getElementById("sidebar");
-
-
-    if (
-        sidebar &&
-        window.innerWidth <= 900
-    ) {
-
-        sidebar.classList.remove("open");
-
-    }
+    document.getElementById("loginPage").style.display =
+        "flex";
 }
 
 
@@ -704,11 +420,35 @@ function toggleMenu() {
     const sidebar =
         document.getElementById("sidebar");
 
-
     if (sidebar) {
-
         sidebar.classList.toggle("open");
+    }
+}
 
+
+// ===============================
+// بررسی نشست قبلی
+// ===============================
+
+async function checkSession() {
+
+    const {
+        data
+    } =
+        await supabaseClient.auth.getSession();
+
+    if (data.session) {
+
+        await loadUserProfile();
+
+        document.getElementById("loginPage").style.display =
+            "none";
+
+        document.getElementById("dashboard").style.display =
+            "block";
+
+        await loadDashboard();
+        await loadAreas();
     }
 }
 
@@ -722,19 +462,13 @@ document.addEventListener(
     async function () {
 
         console.log(
-            "🚀 سامانه راهبرد شوشتر"
+            "سامانه راهبرد شوشتر اجرا شد"
         );
 
-
-        const connected =
-            initSupabase();
-
-
-        if (connected) {
-
-            await checkSession();
-
+        if (!initSupabase()) {
+            return;
         }
 
+        await checkSession();
     }
 );
