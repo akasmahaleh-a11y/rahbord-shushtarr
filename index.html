@@ -1,687 +1,1036 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>سامانه راهبرد شوشتر</title>
+<title>سامانه راهبرد شوشتر</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap');
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+:root{
+    --blue:#087cf5;
+    --blue2:#00b7ff;
+    --dark:#03142f;
+    --dark2:#061e42;
+    --white:#ffffff;
+    --bg:#eef7ff;
+    --text:#09244a;
+    --muted:#6681a5;
+    --border:rgba(30,130,240,.18);
+}
+
+body{
+    font-family:'Vazirmatn',sans-serif;
+    background:
+        radial-gradient(circle at 80% 10%,rgba(0,183,255,.15),transparent 30%),
+        linear-gradient(135deg,#eef8ff,#dceeff);
+    color:var(--text);
+    min-height:100vh;
+}
+
+/* ================= LOGIN ================= */
+
+#loginPage{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:25px;
+    position:relative;
+    overflow:hidden;
+    background:
+        radial-gradient(circle at 20% 20%,rgba(0,183,255,.18),transparent 25%),
+        radial-gradient(circle at 80% 80%,rgba(0,91,255,.2),transparent 30%),
+        linear-gradient(135deg,#02132e,#063269 55%,#087cf5);
+}
+
+#loginPage::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+        linear-gradient(rgba(0,183,255,.06) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(0,183,255,.06) 1px,transparent 1px);
+    background-size:45px 45px;
+}
+
+.login-box{
+    width:100%;
+    max-width:440px;
+    background:rgba(255,255,255,.97);
+    border:1px solid rgba(255,255,255,.7);
+    border-radius:28px;
+    padding:38px;
+    position:relative;
+    z-index:2;
+    box-shadow:
+        0 30px 80px rgba(0,20,60,.35),
+        0 0 40px rgba(0,183,255,.15);
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    margin-bottom:30px;
+}
+
+.logo-icon{
+    width:64px;
+    height:64px;
+    border-radius:20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:30px;
+    font-weight:800;
+    background:linear-gradient(135deg,#087cf5,#00c8ff);
+    box-shadow:0 10px 30px rgba(0,124,245,.35);
+}
+
+.logo-text h1{
+    font-size:23px;
+    font-weight:800;
+    color:#05204a;
+}
+
+.logo-text span{
+    display:block;
+    color:#6681a5;
+    font-size:12px;
+    margin-top:4px;
+}
+
+.login-title{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.login-title h2{
+    font-size:24px;
+    margin-bottom:7px;
+}
+
+.login-title p{
+    color:var(--muted);
+    font-size:13px;
+}
+
+.input-group{
+    margin-bottom:18px;
+}
+
+.input-group label{
+    display:block;
+    margin-bottom:8px;
+    font-size:13px;
+    font-weight:600;
+}
+
+.input-group input{
+    width:100%;
+    padding:14px 16px;
+    border:1px solid #d5e5f5;
+    border-radius:14px;
+    outline:none;
+    font-family:inherit;
+    font-size:14px;
+    background:#f8fcff;
+    transition:.25s;
+}
+
+.input-group input:focus{
+    border-color:var(--blue);
+    box-shadow:0 0 0 4px rgba(8,124,245,.1);
+}
+
+.login-btn{
+    width:100%;
+    border:none;
+    padding:15px;
+    border-radius:15px;
+    background:linear-gradient(135deg,#087cf5,#00b7ff);
+    color:white;
+    font-family:inherit;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 12px 30px rgba(8,124,245,.3);
+    transition:.25s;
+}
+
+.login-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 15px 35px rgba(8,124,245,.4);
+}
+
+#loginError{
+    color:#e53935;
+    text-align:center;
+    font-size:13px;
+    margin-bottom:12px;
+}
+
+/* ================= DASHBOARD ================= */
+
+#dashboard{
+    display:none;
+    min-height:100vh;
+}
+
+.sidebar{
+    width:270px;
+    background:
+        radial-gradient(circle at 50% 0%,rgba(0,183,255,.15),transparent 30%),
+        linear-gradient(180deg,#041a3b,#02122d);
+    color:white;
+    position:fixed;
+    right:0;
+    top:0;
+    bottom:0;
+    z-index:50;
+    padding:24px 16px;
+    box-shadow:10px 0 40px rgba(0,20,60,.15);
+}
+
+.sidebar-brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:0 10px 25px;
+    border-bottom:1px solid rgba(255,255,255,.1);
+    margin-bottom:20px;
+}
+
+.sidebar-brand .logo-icon{
+    width:48px;
+    height:48px;
+    border-radius:15px;
+    font-size:22px;
+}
+
+.sidebar-brand h2{
+    font-size:16px;
+}
+
+.sidebar-brand span{
+    display:block;
+    font-size:10px;
+    color:#79baff;
+    margin-top:3px;
+}
+
+.nav-title{
+    color:#5781ad;
+    font-size:10px;
+    padding:0 14px 10px;
+    margin-top:15px;
+}
+
+.nav-btn{
+    width:100%;
+    border:0;
+    background:transparent;
+    color:#a8c7e8;
+    padding:13px 15px;
+    margin:3px 0;
+    border-radius:13px;
+    font-family:inherit;
+    font-size:13px;
+    text-align:right;
+    cursor:pointer;
+    transition:.25s;
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.nav-btn .icon{
+    width:30px;
+    height:30px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:9px;
+    background:rgba(255,255,255,.06);
+}
+
+.nav-btn:hover,
+.nav-btn.active{
+    background:linear-gradient(90deg,rgba(0,183,255,.18),rgba(8,124,245,.45));
+    color:white;
+    box-shadow:inset 3px 0 0 #00c8ff;
+}
+
+.sidebar-bottom{
+    position:absolute;
+    bottom:20px;
+    right:16px;
+    left:16px;
+    padding:15px;
+    border-radius:15px;
+    background:rgba(0,183,255,.08);
+    border:1px solid rgba(0,183,255,.15);
+    text-align:center;
+    font-size:11px;
+    color:#7fa9d1;
+}
+
+/* ================= MAIN ================= */
+
+.main{
+    margin-right:270px;
+    width:calc(100% - 270px);
+    min-height:100vh;
+    padding:20px 25px 35px;
+}
+
+.topbar{
+    height:70px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:20px;
+}
+
+.page-name{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.menu-mobile{
+    display:none;
+    border:0;
+    background:white;
+    width:45px;
+    height:45px;
+    border-radius:13px;
+    font-size:20px;
+}
+
+.page-name h2{
+    font-size:22px;
+    font-weight:800;
+}
+
+.page-name p{
+    font-size:11px;
+    color:var(--muted);
+    margin-top:3px;
+}
+
+.top-user{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:rgba(255,255,255,.75);
+    border:1px solid var(--border);
+    padding:8px 12px;
+    border-radius:16px;
+}
+
+.user-avatar{
+    width:40px;
+    height:40px;
+    border-radius:12px;
+    background:linear-gradient(135deg,#087cf5,#00b7ff);
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:800;
+}
+
+.user-info strong{
+    display:block;
+    font-size:12px;
+}
+
+.user-info small{
+    color:#7390af;
+    font-size:9px;
+}
+
+/* ================= HERO ================= */
+
+.hero{
+    min-height:250px;
+    border-radius:25px;
+    padding:35px;
+    position:relative;
+    overflow:hidden;
+    color:white;
+    background:
+        linear-gradient(90deg,rgba(2,22,54,.96),rgba(4,84,160,.72)),
+        linear-gradient(135deg,#063e84,#00a9e8);
+    box-shadow:0 20px 50px rgba(0,70,150,.2);
+    margin-bottom:22px;
+}
+
+.hero::after{
+    content:"";
+    position:absolute;
+    width:400px;
+    height:400px;
+    border:1px solid rgba(0,213,255,.25);
+    border-radius:50%;
+    left:-100px;
+    top:-170px;
+    box-shadow:
+        0 0 0 40px rgba(0,213,255,.03),
+        0 0 0 80px rgba(0,213,255,.02);
+}
+
+.hero-grid{
+    position:absolute;
+    inset:0;
+    background-image:
+        linear-gradient(rgba(0,220,255,.05) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(0,220,255,.05) 1px,transparent 1px);
+    background-size:35px 35px;
+}
+
+.hero-content{
+    position:relative;
+    z-index:2;
+    max-width:600px;
+}
+
+.hero-tag{
+    display:inline-block;
+    padding:6px 12px;
+    border:1px solid rgba(255,255,255,.25);
+    border-radius:20px;
+    font-size:10px;
+    background:rgba(255,255,255,.08);
+    margin-bottom:15px;
+}
+
+.hero h1{
+    font-size:30px;
+    font-weight:800;
+    margin-bottom:8px;
+}
+
+.hero p{
+    color:#c8e7ff;
+    font-size:13px;
+    line-height:2;
+}
+
+.hero-location{
+    position:absolute;
+    left:30px;
+    bottom:25px;
+    z-index:3;
+    padding:10px 18px;
+    border-radius:13px;
+    background:rgba(0,20,50,.45);
+    border:1px solid rgba(0,210,255,.25);
+    font-size:12px;
+}
+
+/* ================= STATS ================= */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-bottom:22px;
+}
+
+.stat-card{
+    background:rgba(255,255,255,.9);
+    border:1px solid var(--border);
+    border-radius:19px;
+    padding:20px;
+    display:flex;
+    align-items:center;
+    gap:15px;
+    box-shadow:0 10px 30px rgba(0,70,150,.06);
+    transition:.25s;
+}
+
+.stat-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 15px 35px rgba(0,70,150,.1);
+}
+
+.stat-icon{
+    width:52px;
+    height:52px;
+    flex-shrink:0;
+    border-radius:15px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,#e3f3ff,#c6e9ff);
+    color:#087cf5;
+    font-size:23px;
+}
+
+.stat-card h3{
+    font-size:24px;
+    font-weight:800;
+}
+
+.stat-card p{
+    font-size:11px;
+    color:var(--muted);
+    margin-top:2px;
+}
+
+/* ================= CONTENT ================= */
+
+.content-grid{
+    display:grid;
+    grid-template-columns:1fr 310px;
+    gap:20px;
+}
+
+.panel{
+    background:rgba(255,255,255,.9);
+    border:1px solid var(--border);
+    border-radius:21px;
+    padding:22px;
+    box-shadow:0 10px 30px rgba(0,70,150,.05);
+}
+
+.panel-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+}
+
+.panel-head h3{
+    font-size:16px;
+}
+
+.panel-head span{
+    font-size:10px;
+    color:#087cf5;
+}
+
+/* ================= AREA CARDS ================= */
+
+.area-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+}
+
+.area-card{
+    background:linear-gradient(135deg,#fff,#f0f8ff);
+    border:1px solid #d9ebfa;
+    border-radius:16px;
+    padding:16px;
+    cursor:pointer;
+    transition:.25s;
+    display:flex;
+    align-items:center;
+    gap:13px;
+}
+
+.area-card:hover{
+    border-color:#59baff;
+    transform:translateY(-2px);
+    box-shadow:0 10px 25px rgba(0,124,245,.1);
+}
+
+.area-number{
+    width:38px;
+    height:38px;
+    border-radius:11px;
+    background:#e0f2ff;
+    color:#087cf5;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:13px;
+    font-weight:800;
+}
+
+.area-card strong{
+    display:block;
+    font-size:12px;
+}
+
+.area-card small{
+    display:block;
+    color:#7591ad;
+    font-size:9px;
+    margin-top:4px;
+}
+
+/* ================= RECENT ================= */
+
+.recent-item{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding:12px 0;
+    border-bottom:1px solid #edf4fa;
+}
+
+.recent-item:last-child{
+    border-bottom:0;
+}
+
+.status-dot{
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:#00aaff;
+    box-shadow:0 0 10px rgba(0,170,255,.6);
+}
+
+.recent-item strong{
+    font-size:11px;
+    display:block;
+}
+
+.recent-item small{
+    color:#819ab4;
+    font-size:9px;
+}
+
+/* ================= PAGES ================= */
+
+.page{
+    display:none;
+}
+
+#dashboardPage{
+    display:block;
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:1000px){
+
+    .sidebar{
+        transform:translateX(100%);
+        transition:.3s;
     }
 
-    body {
-      margin: 0;
-      font-family: Tahoma, Arial, sans-serif;
-      background: #f3f7fc;
-      color: #172033;
+    .sidebar.open{
+        transform:translateX(0);
     }
 
-    .login-page {
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      background:
-        radial-gradient(circle at top right, #2196f3 0, transparent 35%),
-        linear-gradient(135deg, #061a35, #0d5ca8);
+    .main{
+        margin-right:0;
+        width:100%;
+        padding:15px;
     }
 
-    .login-box {
-      width: 100%;
-      max-width: 430px;
-      background: white;
-      border-radius: 24px;
-      padding: 35px 28px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    .menu-mobile{
+        display:block;
     }
 
-    .logo {
-      width: 75px;
-      height: 75px;
-      margin: 0 auto 20px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #0877d1, #00427d);
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 35px;
-      font-weight: bold;
+    .stats{
+        grid-template-columns:repeat(2,1fr);
     }
 
-    h1 {
-      text-align: center;
-      font-size: 23px;
-      margin-bottom: 8px;
+    .content-grid{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:650px){
+
+    .topbar{
+        height:60px;
     }
 
-    .subtitle {
-      text-align: center;
-      color: #718096;
-      font-size: 14px;
-      margin-bottom: 28px;
+    .page-name h2{
+        font-size:17px;
     }
 
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: bold;
-      font-size: 14px;
+    .user-info{
+        display:none;
     }
 
-    input {
-      width: 100%;
-      padding: 14px;
-      border: 1px solid #d7e0eb;
-      border-radius: 12px;
-      margin-bottom: 18px;
-      font-size: 15px;
-      outline: none;
+    .hero{
+        padding:25px;
+        min-height:220px;
     }
 
-    input:focus {
-      border-color: #0877d1;
+    .hero h1{
+        font-size:23px;
     }
 
-    button {
-      border: none;
-      cursor: pointer;
-      font-family: inherit;
+    .hero-location{
+        left:20px;
+        bottom:18px;
     }
 
-    .login-btn {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      background: #0877d1;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
+    .stats{
+        grid-template-columns:1fr 1fr;
+        gap:10px;
     }
 
-    .login-btn:hover {
-      background: #075fa8;
+    .stat-card{
+        padding:13px;
+        gap:9px;
     }
 
-    .error {
-      display: none;
-      background: #fff0f0;
-      color: #b42318;
-      padding: 12px;
-      border-radius: 10px;
-      margin-bottom: 15px;
-      font-size: 13px;
+    .stat-icon{
+        width:42px;
+        height:42px;
+        font-size:18px;
     }
 
-    /* Dashboard */
-
-    .dashboard {
-      display: none;
-      min-height: 100vh;
+    .stat-card h3{
+        font-size:19px;
     }
 
-    .sidebar {
-      position: fixed;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      width: 250px;
-      background: #071d3a;
-      color: white;
-      padding: 22px 15px;
+    .stat-card p{
+        font-size:9px;
     }
 
-    .brand {
-      font-size: 19px;
-      font-weight: bold;
-      padding: 10px;
-      margin-bottom: 25px;
+    .area-grid{
+        grid-template-columns:1fr;
     }
 
-    .menu button {
-      width: 100%;
-      padding: 13px;
-      margin-bottom: 7px;
-      text-align: right;
-      background: transparent;
-      color: #dce8f7;
-      border-radius: 10px;
-      font-size: 14px;
+    .login-box{
+        padding:27px 20px;
     }
+}
 
-    .menu button:hover,
-    .menu button.active {
-      background: #0877d1;
-      color: white;
-    }
-
-    .logout {
-      background: #b42318 !important;
-      margin-top: 20px;
-    }
-
-    .content {
-      margin-right: 250px;
-      padding: 25px;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 25px;
-    }
-
-    .topbar h2 {
-      margin: 0;
-    }
-
-    .user-badge {
-      background: white;
-      padding: 10px 15px;
-      border-radius: 12px;
-      box-shadow: 0 5px 20px rgba(0,0,0,.06);
-      font-size: 13px;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
-    }
-
-    .stat-card {
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 5px 20px rgba(0,0,0,.05);
-    }
-
-    .stat-card span {
-      color: #718096;
-      font-size: 13px;
-    }
-
-    .stat-card strong {
-      display: block;
-      color: #0877d1;
-      font-size: 30px;
-      margin-top: 10px;
-    }
-
-    .panel {
-      background: white;
-      border-radius: 16px;
-      padding: 22px;
-      margin-top: 20px;
-      box-shadow: 0 5px 20px rgba(0,0,0,.05);
-    }
-
-    .areas {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-    }
-
-    .area-card {
-      border: 1px solid #e0e7f0;
-      border-radius: 14px;
-      padding: 18px;
-    }
-
-    .area-card h3 {
-      font-size: 16px;
-      margin-top: 0;
-    }
-
-    .primary {
-      background: #0877d1;
-      color: white;
-      padding: 11px 16px;
-      border-radius: 10px;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    @media(max-width:800px) {
-
-      .sidebar {
-        width: 220px;
-        transform: translateX(100%);
-        transition: .2s;
-        z-index: 10;
-      }
-
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .content {
-        margin-right: 0;
-        padding: 15px;
-      }
-
-      .stats {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .areas {
-        grid-template-columns: 1fr;
-      }
-
-      .mobile-menu {
-        display: block;
-      }
-    }
-
-    .mobile-menu {
-      display: none;
-      background: #0877d1;
-      color: white;
-      padding: 10px 14px;
-      border-radius: 10px;
-    }
-
-    @media(max-width:800px) {
-      .mobile-menu {
-        display: block;
-      }
-    }
-  </style>
+</style>
 </head>
 
 <body>
 
-  <!-- LOGIN -->
+<!-- ================= LOGIN ================= -->
 
-  <div id="loginPage" class="login-page">
+<div id="loginPage">
 
     <div class="login-box">
 
-      <div class="logo">ر</div>
+        <div class="logo">
 
-      <h1>سامانه راهبرد شوشتر</h1>
+            <div class="logo-icon">ر</div>
 
-      <div class="subtitle">
-        سامانه مدیریت و گزارش‌گیری
-      </div>
+            <div class="logo-text">
+                <h1>راهبرد شوشتر</h1>
+                <span>سامانه ثبت و مدیریت گزارشات</span>
+            </div>
 
-      <div id="loginError" class="error"></div>
+        </div>
 
-      <label>ایمیل</label>
-      <input
-        id="email"
-        type="email"
-        placeholder="ایمیل کاربری"
-      >
+        <div class="login-title">
+            <h2>ورود به سامانه</h2>
+            <p>برای ورود، اطلاعات حساب کاربری خود را وارد کنید</p>
+        </div>
 
-      <label>رمز عبور</label>
-      <input
-        id="password"
-        type="password"
-        placeholder="رمز عبور"
-      >
+        <div id="loginError"></div>
 
-      <button
-        class="login-btn"
-        onclick="login()"
-      >
-        ورود به سامانه
-      </button>
+        <div class="input-group">
+            <label>ایمیل</label>
+            <input
+                type="email"
+                id="email"
+                placeholder="ایمیل خود را وارد کنید"
+                autocomplete="email"
+            >
+        </div>
+
+        <div class="input-group">
+            <label>رمز عبور</label>
+            <input
+                type="password"
+                id="password"
+                placeholder="رمز عبور"
+                autocomplete="current-password"
+            >
+        </div>
+
+        <button class="login-btn" onclick="login()">
+            ورود به سامانه
+        </button>
 
     </div>
 
-  </div>
+</div>
 
 
-  <!-- DASHBOARD -->
+<!-- ================= DASHBOARD ================= -->
 
-  <div id="dashboard" class="dashboard">
+<div id="dashboard">
 
-    <aside id="sidebar" class="sidebar">
+    <!-- SIDEBAR -->
 
-      <div class="brand">
-        سامانه راهبرد شوشتر
-      </div>
+    <aside class="sidebar" id="sidebar">
 
-      <div class="menu">
+        <div class="sidebar-brand">
+
+            <div class="logo-icon">ر</div>
+
+            <div>
+                <h2>راهبرد شوشتر</h2>
+                <span>سامانه مدیریت گزارشات</span>
+            </div>
+
+        </div>
+
+        <div class="nav-title">
+            منوی اصلی
+        </div>
 
         <button
-          class="active"
-          onclick="showPage('dashboardPage', this)"
+            class="nav-btn active"
+            onclick="showPage('dashboardPage',this)"
         >
-          📊 داشبورد
+            <span class="icon">⌂</span>
+            داشبورد
         </button>
 
         <button
-          onclick="showPage('areasPage', this)"
+            class="nav-btn"
+            onclick="showPage('areasPage',this)"
         >
-          📍 انتخاب حوزه
+            <span class="icon">▦</span>
+            انتخاب حوزه
         </button>
 
         <button
-          onclick="showPage('reportsPage', this)"
+            class="nav-btn"
+            onclick="showPage('reportsPage',this)"
         >
-          📄 گزارش‌ها
+            <span class="icon">▤</span>
+            گزارش‌ها
+        </button>
+
+        <div class="nav-title">
+            مدیریت
+        </div>
+
+        <button
+            class="nav-btn"
+            onclick="showPage('settingsPage',this)"
+        >
+            <span class="icon">⚙</span>
+            تنظیمات
         </button>
 
         <button
-          onclick="showPage('settingsPage', this)"
+            class="nav-btn"
+            onclick="logout()"
         >
-          ⚙️ تنظیمات
+            <span class="icon">↪</span>
+            خروج
         </button>
 
-        <button
-          class="logout"
-          onclick="logout()"
-        >
-          🚪 خروج
-        </button>
-
-      </div>
+        <div class="sidebar-bottom">
+            <div>● سامانه فعال است</div>
+            <small>Rahbord Shushtar</small>
+        </div>
 
     </aside>
 
 
-    <main class="content">
+    <!-- MAIN -->
 
-      <div class="topbar">
+    <main class="main">
 
-        <div>
-          <button
-            class="mobile-menu"
-            onclick="toggleMenu()"
-          >
-            ☰
-          </button>
+        <!-- TOPBAR -->
 
-          <h2 id="pageTitle">
-            داشبورد
-          </h2>
-        </div>
+        <header class="topbar">
 
-        <div class="user-badge">
-          مدیر اصلی
-        </div>
+            <div class="page-name">
 
-      </div>
+                <button
+                    class="menu-mobile"
+                    onclick="toggleMenu()"
+                >
+                    ☰
+                </button>
 
+                <div>
+                    <h2 id="pageTitle">داشبورد</h2>
+                    <p>مدیریت هوشمند گزارشات و عملکرد حوزه‌ها</p>
+                </div>
 
-      <!-- DASHBOARD PAGE -->
-
-      <section id="dashboardPage">
-
-        <div class="stats">
-
-          <div class="stat-card">
-            <span>کل گزارش‌ها</span>
-            <strong>0</strong>
-          </div>
-
-          <div class="stat-card">
-            <span>گزارش‌های امروز</span>
-            <strong>0</strong>
-          </div>
-
-          <div class="stat-card">
-            <span>گزارش‌های این ماه</span>
-            <strong>0</strong>
-          </div>
-
-          <div class="stat-card">
-            <span>گزارش‌های تأیید شده</span>
-            <strong>0</strong>
-          </div>
-
-        </div>
-
-        <div class="panel">
-
-          <h3>
-            سامانه راهبرد شوشتر
-          </h3>
-
-          <p>
-            به پنل مدیریت گزارش‌ها خوش آمدید.
-          </p>
-
-        </div>
-
-      </section>
-
-
-      <!-- AREAS -->
-
-      <section
-        id="areasPage"
-        class="hidden"
-      >
-
-        <div class="panel">
-
-          <h3>
-            انتخاب حوزه
-          </h3>
-
-          <div class="areas">
-
-            <div class="area-card">
-              <h3>حوزه یک روستایی امام محمد باقر (ع)</h3>
-              <button class="primary">ورود به حوزه</button>
             </div>
 
-            <div class="area-card">
-              <h3>حوزه دو روستایی امام سجاد (ع)</h3>
-              <button class="primary">ورود به حوزه</button>
+            <div class="top-user">
+
+                <div class="user-avatar">
+                    م
+                </div>
+
+                <div class="user-info">
+                    <strong class="user-badge">
+                        مدیر اصلی
+                    </strong>
+
+                    <small>
+                        مدیر سامانه
+                    </small>
+                </div>
+
             </div>
 
-            <div class="area-card">
-              <h3>حوزه سه روستایی علی بن ابی‌طالب (ع)</h3>
-              <button class="primary">ورود به حوزه</button>
+        </header>
+
+
+        <!-- ================= DASHBOARD PAGE ================= -->
+
+        <section
+            id="dashboardPage"
+            class="page"
+        >
+
+            <div class="hero">
+
+                <div class="hero-grid"></div>
+
+                <div class="hero-content">
+
+                    <span class="hero-tag">
+                        ● سامانه عملیاتی
+                    </span>
+
+                    <h1>
+                        به سامانه راهبرد شوشتر خوش آمدید
+                    </h1>
+
+                    <p>
+                        ثبت، مدیریت، بررسی و گزارش‌گیری هوشمند
+                        فعالیت‌های حوزه‌های مختلف در یک سامانه یکپارچه.
+                    </p>
+
+                </div>
+
+                <div class="hero-location">
+                    ◉ شهرستان شوشتر
+                </div>
+
             </div>
 
-            <div class="area-card">
-              <h3>حوزه چهار روستایی امام جعفر صادق (ع)</h3>
-              <button class="primary">ورود به حوزه</button>
+
+            <!-- STATS -->
+
+            <div class="stats">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ▤
+                    </div>
+
+                    <div>
+                        <h3 id="totalReports">0</h3>
+                        <p>کل گزارش‌های تأیید شده</p>
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ◷
+                    </div>
+
+                    <div>
+                        <h3 id="todayReports">0</h3>
+                        <p>گزارش‌های امروز</p>
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ▦
+                    </div>
+
+                    <div>
+                        <h3 id="monthReports">0</h3>
+                        <p>گزارش‌های این ماه</p>
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ◫
+                    </div>
+
+                    <div>
+                        <h3 id="photoCount">0</h3>
+                        <p>عکس‌های ثبت شده</p>
+                    </div>
+
+                </div>
+
             </div>
 
-            <div class="area-card">
-              <h3>حوزه پنج روستایی امام موسی کاظم (ع)</h3>
-              <button class="primary">ورود به حوزه</button>
-            </div>
 
-            <div class="area-card">
-              <h3>حوزه یک شهری محمد رسول‌الله (ص)</h3>
-              <button class="primary">ورود به حوزه</button>
-            </div>
+            <!-- CONTENT -->
 
-            <div class="area-card">
-              <h3>حوزه دو شهری امام حسین (ع)</h3>
-              <button class="primary">ورود به حوزه</button>
-            </div>
+            <div class="content-grid">
 
-            <div class="area-card">
-              <h3>حوزه سه شهری امام رضا (ع)</h3>
-              <button class="primary">ورود به حوزه</button>
-            </div>
+                <div class="panel">
 
-            <div class="area-card">
-              <h3>حوزه حضرت زینب (س)</h3>
-              <button class="primary">ورود به حوزه</button>
-            </div>
+                    <div class="panel-head">
 
-            <div class="area-card">
-              <h3>حوزه حضرت فاطمه (س)</h3>
-              <button class="primary">ورود به حوزه</button>
-            </div>
+                        <h3>
+                            انتخاب حوزه
+                        </h3>
 
-          </div>
+                        <span>
+                            ۱۰ حوزه
+                        </span>
 
-        </div>
+                    </div>
 
-      </section>
 
+                    <div class="area-grid">
 
-      <!-- REPORTS -->
+                        <div class="area-card">
+                            <div class="area-number">۱</div>
+                            <div>
+                                <strong>حوزه یک روستایی</strong>
+                                <small>امام محمد باقر (ع)</small>
+                            </div>
+                        </div>
 
-      <section
-        id="reportsPage"
-        class="hidden"
-      >
+                        <div class="area-card">
+                            <div class="area-number">۲</div>
+                            <div>
+                                <strong>حوزه دو روستایی</strong>
+                                <small>امام سجاد (ع)</small>
+                            </div>
+                        </div>
 
-        <div class="panel">
+                        <div class="area-card">
+                            <div class="area-number">۳</div>
+                            <div>
+                                <strong>حوزه سه روستایی</strong>
+                                <small>علی بن ابی‌طالب (ع)</small>
+                            </div>
+                        </div>
 
-          <h3>
-            گزارش‌ها
-          </h3>
-
-          <p>
-            هنوز گزارشی ثبت نشده است.
-          </p>
-
-        </div>
-
-      </section>
-
-
-      <!-- SETTINGS -->
-
-      <section
-        id="settingsPage"
-        class="hidden"
-      >
-
-        <div class="panel">
-
-          <h3>
-            تنظیمات
-          </h3>
-
-          <p>
-            تنظیمات حساب کاربری و سامانه در این بخش قرار می‌گیرد.
-          </p>
-
-        </div>
-
-      </section>
-
-    </main>
-
-  </div>
-
-
-<script>
-
-function login() {
-
-  const email =
-    document.getElementById("email").value.trim();
-
-  const password =
-    document.getElementById("password").value;
-
-  const error =
-    document.getElementById("loginError");
-
-  if (!email || !password) {
-
-    error.textContent =
-      "ایمیل و رمز عبور را وارد کنید.";
-
-    error.style.display = "block";
-
-    return;
-  }
-
-  /*
-    فعلاً ورود نمایشی نیست.
-    در مرحله بعد این قسمت را مستقیم
-    به Supabase Auth وصل می‌کنیم.
-  */
-
-  error.textContent =
-    "اتصال به Supabase در مرحله بعد فعال می‌شود.";
-
-  error.style.display = "block";
-}
-
-
-function logout() {
-
-  document.getElementById("dashboard").style.display =
-    "none";
-
-  document.getElementById("loginPage").style.display =
-    "flex";
-
-}
-
-
-function showPage(pageId, button) {
-
-  const pages = [
-    "dashboardPage",
-    "areasPage",
-    "reportsPage",
-    "settingsPage"
-  ];
-
-  pages.forEach(function(id) {
-
-    document.getElementById(id)
-      .classList.add("hidden");
-
-  });
-
-  document.getElementById(pageId)
-    .classList.remove("hidden");
-
-
-  document
-    .querySelectorAll(".menu button")
-    .forEach(function(btn) {
-
-      btn.classList.remove("active");
-
-    });
-
-  button.classList.add("active");
-
-
-  const titles = {
-
-    dashboardPage: "داشبورد",
-
-    areasPage: "انتخاب حوزه",
-
-    reportsPage: "گزارش‌ها",
-
-    settingsPage: "تنظیمات"
-
-  };
-
-  document.getElementById("pageTitle")
-    .textContent = titles[pageId];
-
-}
-
-
-function toggleMenu() {
-
-  document
-    .getElementById("sidebar")
-    .classList.toggle("open");
-
-}
-
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
-</body>
-  </html>
-  
+                        <div class="area-card">
+                            <div class="area-number">۴</div>
+                            <div>
+                        
