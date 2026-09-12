@@ -10,7 +10,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{box-sizing:border-box}
+
+*{
+    box-sizing:border-box;
+}
 
 body{
     margin:0;
@@ -24,7 +27,8 @@ button{
     cursor:pointer;
 }
 
-/* LOGIN */
+
+/* ================= LOGIN ================= */
 
 #loginPage{
     min-height:100vh;
@@ -80,7 +84,8 @@ button{
     margin-top:15px;
 }
 
-/* DASHBOARD */
+
+/* ================= DASHBOARD ================= */
 
 #dashboard{
     display:none;
@@ -116,7 +121,8 @@ button{
     display:flex;
 }
 
-/* SIDEBAR */
+
+/* ================= SIDEBAR ================= */
 
 #sidebar{
     width:250px;
@@ -161,7 +167,8 @@ button{
     border-radius:10px;
 }
 
-/* CONTENT */
+
+/* ================= CONTENT ================= */
 
 .content{
     flex:1;
@@ -181,7 +188,8 @@ button{
     margin-bottom:25px;
 }
 
-/* STATS */
+
+/* ================= STATS ================= */
 
 .stats{
     display:grid;
@@ -210,7 +218,8 @@ button{
     margin-top:10px;
 }
 
-/* AREAS */
+
+/* ================= AREAS ================= */
 
 .areas-container{
     display:grid;
@@ -262,7 +271,8 @@ button{
     border-radius:9px;
 }
 
-/* SELECTED AREA */
+
+/* ================= SELECTED AREA ================= */
 
 #selectedAreaPanel{
     display:none;
@@ -280,6 +290,9 @@ button{
 .selected-area-header h2{
     margin:0 0 8px;
 }
+
+
+/* ================= SECTIONS ================= */
 
 .sections{
     display:grid;
@@ -299,6 +312,12 @@ button{
     color:#0b4fa3;
 }
 
+.section-card p{
+    color:#777;
+    font-size:13px;
+    line-height:1.8;
+}
+
 .section-card button{
     width:100%;
     padding:10px;
@@ -308,7 +327,37 @@ button{
     border-radius:8px;
 }
 
-/* MOBILE */
+
+/* ================= SECTION PANEL ================= */
+
+#sectionPanel{
+    display:none;
+    margin-top:25px;
+}
+
+.option-card{
+    background:white;
+    border:1px solid #e2e7ef;
+    border-radius:15px;
+    padding:22px;
+}
+
+.option-card h3{
+    color:#0b4fa3;
+    margin-top:0;
+}
+
+.option-card button{
+    width:100%;
+    padding:12px;
+    border:0;
+    background:#0b4fa3;
+    color:white;
+    border-radius:9px;
+}
+
+
+/* ================= MOBILE ================= */
 
 @media(max-width:900px){
 
@@ -336,7 +385,9 @@ button{
     .sections{
         grid-template-columns:1fr;
     }
+
 }
+
 
 @media(max-width:500px){
 
@@ -351,21 +402,29 @@ button{
     .area-select-btn{
         width:100%;
     }
+
 }
+
 </style>
 </head>
 
+
 <body>
 
-<!-- LOGIN -->
+
+<!-- ================= LOGIN ================= -->
 
 <div id="loginPage">
 
     <div class="login-box">
 
-        <h1>سامانه راهبرد شوشتر</h1>
+        <h1>
+            سامانه راهبرد شوشتر
+        </h1>
 
-        <p>ورود کاربران سامانه</p>
+        <p>
+            ورود کاربران سامانه
+        </p>
 
         <form id="loginForm">
 
@@ -373,17 +432,20 @@ button{
                 id="email"
                 type="email"
                 placeholder="ایمیل"
-                autocomplete="username">
+                autocomplete="username"
+            >
 
             <input
                 id="password"
                 type="password"
                 placeholder="رمز عبور"
-                autocomplete="current-password">
+                autocomplete="current-password"
+            >
 
             <button
                 id="loginButton"
-                type="submit">
+                type="submit"
+            >
                 ورود به سامانه
             </button>
 
@@ -396,15 +458,20 @@ button{
 </div>
 
 
-<!-- DASHBOARD -->
+
+<!-- ================= DASHBOARD ================= -->
 
 <div id="dashboard">
+
+
+    <!-- TOPBAR -->
 
     <div class="topbar">
 
         <button
             class="menu-toggle"
-            onclick="toggleMenu()">
+            onclick="toggleMenu()"
+        >
             ☰
         </button>
 
@@ -419,9 +486,11 @@ button{
     </div>
 
 
+
     <div class="layout">
 
-        <!-- SIDEBAR -->
+
+        <!-- ================= SIDEBAR ================= -->
 
         <aside id="sidebar">
 
@@ -429,100 +498,152 @@ button{
                 راهبرد شوشتر
             </div>
 
+
             <button
                 class="menu-btn active"
-                onclick="showPage('dashboardPage',this)">
+                onclick="showPage('dashboardPage',this)"
+            >
                 🏠 داشبورد
             </button>
 
+
             <button
                 class="menu-btn"
-                onclick="showPage('areasPage',this)">
+                onclick="showPage('areasPage',this)"
+            >
                 🏢 انتخاب حوزه
             </button>
 
+
             <button
                 class="menu-btn"
-                onclick="showPage('reportsPage',this)">
+                onclick="showPage('reportsPage',this)"
+            >
                 📋 گزارش‌ها
             </button>
 
+
             <button
                 class="menu-btn"
-                onclick="showPage('settingsPage',this)">
+                onclick="showPage('settingsPage',this)"
+            >
                 ⚙️ تنظیمات
             </button>
 
+
             <button
                 class="logout-btn"
-                onclick="logout()">
+                onclick="logout()"
+            >
                 خروج
             </button>
 
         </aside>
 
 
-        <!-- CONTENT -->
+
+        <!-- ================= CONTENT ================= -->
 
         <main class="content">
 
 
-            <!-- DASHBOARD -->
+            <!-- DASHBOARD PAGE -->
 
             <section
                 id="dashboardPage"
-                class="page">
+                class="page"
+            >
 
                 <h2 class="page-title">
                     داشبورد سامانه
                 </h2>
 
+
                 <div class="stats">
 
-                    <div class="stat-card">
-                        <h3>کل گزارش‌های تأیید شده</h3>
-                        <strong id="totalReports">0</strong>
-                    </div>
 
                     <div class="stat-card">
-                        <h3>گزارش‌های امروز</h3>
-                        <strong id="todayReports">0</strong>
+
+                        <h3>
+                            کل گزارش‌های تأیید شده
+                        </h3>
+
+                        <strong id="totalReports">
+                            0
+                        </strong>
+
                     </div>
 
-                    <div class="stat-card">
-                        <h3>گزارش‌های این ماه</h3>
-                        <strong id="monthReports">0</strong>
-                    </div>
 
                     <div class="stat-card">
-                        <h3>تعداد تصاویر</h3>
-                        <strong id="photoCount">0</strong>
+
+                        <h3>
+                            گزارش‌های امروز
+                        </h3>
+
+                        <strong id="todayReports">
+                            0
+                        </strong>
+
                     </div>
+
+
+                    <div class="stat-card">
+
+                        <h3>
+                            گزارش‌های این ماه
+                        </h3>
+
+                        <strong id="monthReports">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <h3>
+                            تعداد تصاویر
+                        </h3>
+
+                        <strong id="photoCount">
+                            0
+                        </strong>
+
+                    </div>
+
 
                 </div>
 
+
                 <button
                     class="area-select-btn"
-                    onclick="showPage('areasPage')">
+                    onclick="showPage('areasPage')"
+                >
                     انتخاب حوزه
                 </button>
 
             </section>
 
 
-            <!-- AREAS -->
+
+            <!-- ================= AREAS PAGE ================= -->
 
             <section
                 id="areasPage"
-                class="page">
+                class="page"
+            >
 
                 <h2 class="page-title">
                     انتخاب حوزه
                 </h2>
 
+
                 <div
                     id="areasContainer"
-                    class="areas-container">
+                    class="areas-container"
+                >
 
                     <div>
                         در حال دریافت حوزه‌ها...
@@ -531,13 +652,21 @@ button{
                 </div>
 
 
-                <!-- AREA PANEL -->
 
-                <div id="selectedAreaPanel">
+                <!-- SELECTED AREA -->
 
-                    <div class="selected-area-header">
+                <div
+                    id="selectedAreaPanel"
+                >
 
-                        <h2 id="selectedAreaName">
+
+                    <div
+                        class="selected-area-header"
+                    >
+
+                        <h2
+                            id="selectedAreaName"
+                        >
                             حوزه
                         </h2>
 
@@ -548,77 +677,235 @@ button{
                     </div>
 
 
+
                     <div class="sections">
 
-                        <div class="section-card">
-                            <h3>شمسا</h3>
-                            <button>ثبت گزارش</button>
-                        </div>
+
+                        <!-- SHAMSA -->
 
                         <div class="section-card">
-                            <h3>متنا</h3>
-                            <button>ثبت گزارش</button>
+
+                            <h3>
+                                شمسا
+                            </h3>
+
+                            <p>
+                                گزارش‌های توییتر،
+                                اینستاگرام،
+                                ادیورز و انتشار
+                            </p>
+
+                            <button
+                                onclick="openSection('شمسا')"
+                            >
+                                ورود به شمسا
+                            </button>
+
                         </div>
 
-                        <div class="section-card">
-                            <h3>مپتا</h3>
-                            <button>ثبت گزارش</button>
-                        </div>
+
+
+                        <!-- MATNA -->
 
                         <div class="section-card">
-                            <h3>نسرا</h3>
-                            <button>ثبت گزارش</button>
+
+                            <h3>
+                                متنا
+                            </h3>
+
+                            <p>
+                                تولیدات بومی
+                                و تولید عملیاتی
+                            </p>
+
+                            <button
+                                onclick="openSection('متنا')"
+                            >
+                                ورود به متنا
+                            </button>
+
                         </div>
 
-                        <div class="section-card">
-                            <h3>رصد</h3>
-                            <button>ثبت گزارش</button>
-                        </div>
+
+
+                        <!-- MAPTA -->
 
                         <div class="section-card">
-                            <h3>رسانه محله</h3>
-                            <button>ثبت گزارش</button>
+
+                            <h3>
+                                مپتا
+                            </h3>
+
+                            <p>
+                                ارسال خبر،
+                                مصاحبه و عملیات
+                            </p>
+
+                            <button
+                                onclick="openSection('مپتا')"
+                            >
+                                ورود به مپتا
+                            </button>
+
+                        </div>
+
+
+
+                        <!-- NASRA -->
+
+                        <div class="section-card">
+
+                            <h3>
+                                نسرا
+                            </h3>
+
+                            <p>
+                                خلاقیت،
+                                نشست،
+                                لایو،
+                                تولید محتوا
+                                و توانمندسازی
+                            </p>
+
+                            <button
+                                onclick="openSection('نسرا')"
+                            >
+                                ورود به نسرا
+                            </button>
+
+                        </div>
+
+
+
+                        <!-- RASAD -->
+
+                        <div class="section-card">
+
+                            <h3>
+                                رصد
+                            </h3>
+
+                            <p>
+                                ارسال خبر
+                            </p>
+
+                            <button
+                                onclick="openSection('رصد')"
+                            >
+                                ورود به رصد
+                            </button>
+
+                        </div>
+
+
+
+                        <!-- MEDIA -->
+
+                        <div class="section-card">
+
+                            <h3>
+                                رسانه محله
+                            </h3>
+
+                            <p>
+                                گزارش روزانه
+                                و عملیات
+                            </p>
+
+                            <button
+                                onclick="openSection('رسانه محله')"
+                            >
+                                ورود به رسانه محله
+                            </button>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- ================= SECTION PANEL ================= -->
+
+                    <div
+                        id="sectionPanel"
+                    >
+
+                        <div
+                            class="selected-area-header"
+                        >
+
+                            <h2
+                                id="sectionTitle"
+                            >
+                                بخش
+                            </h2>
+
+                            <div
+                                id="sectionDescription"
+                            >
+                                گزینه‌های ثبت گزارش
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            id="sectionOptions"
+                            class="sections"
+                        >
                         </div>
 
                     </div>
+
 
                 </div>
 
             </section>
 
 
-            <!-- REPORTS -->
+
+            <!-- ================= REPORTS ================= -->
 
             <section
                 id="reportsPage"
-                class="page">
+                class="page"
+            >
 
                 <h2 class="page-title">
                     گزارش‌ها
                 </h2>
 
                 <div class="stat-card">
-                    گزارش‌های ثبت‌شده در این قسمت نمایش داده می‌شوند.
+
+                    گزارش‌های ثبت‌شده
+                    در این قسمت نمایش داده می‌شوند.
+
                 </div>
 
             </section>
 
 
-            <!-- SETTINGS -->
+
+            <!-- ================= SETTINGS ================= -->
 
             <section
                 id="settingsPage"
-                class="page">
+                class="page"
+            >
 
                 <h2 class="page-title">
                     تنظیمات
                 </h2>
 
                 <div class="stat-card">
+
                     تنظیمات سامانه
+
                 </div>
 
             </section>
+
 
         </main>
 
@@ -627,21 +914,31 @@ button{
 </div>
 
 
-<script src="app.js?v=6"></script>
+
+<script src="app.js?v=7"></script>
 
 
 <script>
 
+
+/* ================= LOGIN FORM ================= */
+
 document
 .getElementById("loginForm")
-.addEventListener("submit",function(event){
+.addEventListener(
+    "submit",
+    function(event){
 
-    event.preventDefault();
+        event.preventDefault();
 
-    login();
+        login();
 
-});
+    }
+);
 
+
+
+/* ================= MOBILE MENU ================= */
 
 function toggleMenu(){
 
@@ -649,11 +946,16 @@ function toggleMenu(){
         document.getElementById("sidebar");
 
     if(sidebar){
+
         sidebar.classList.toggle("open");
+
     }
 
 }
 
+
+
+/* ================= PAGE NAVIGATION ================= */
 
 function showPage(pageId,button){
 
@@ -669,8 +971,11 @@ function showPage(pageId,button){
     const page =
         document.getElementById(pageId);
 
+
     if(page){
+
         page.style.display="block";
+
     }
 
 
@@ -684,15 +989,20 @@ function showPage(pageId,button){
 
 
     if(button){
+
         button.classList.add("active");
+
     }
 
 
     const titles={
 
         dashboardPage:"داشبورد",
+
         areasPage:"انتخاب حوزه",
+
         reportsPage:"گزارش‌ها",
+
         settingsPage:"تنظیمات"
 
     };
@@ -700,6 +1010,7 @@ function showPage(pageId,button){
 
     const title =
         document.getElementById("pageTitle");
+
 
     if(title){
 
@@ -712,6 +1023,7 @@ function showPage(pageId,button){
 
     const sidebar =
         document.getElementById("sidebar");
+
 
     if(
         sidebar &&
@@ -735,6 +1047,9 @@ function showPage(pageId,button){
 }
 
 
+
+/* ================= SELECT AREA ================= */
+
 window.selectArea =
 async function(areaId){
 
@@ -743,7 +1058,9 @@ async function(areaId){
         !supabaseClient
     ){
 
-        alert("اتصال به سامانه برقرار نیست.");
+        alert(
+            "اتصال به سامانه برقرار نیست."
+        );
 
         return;
 
@@ -762,16 +1079,21 @@ async function(areaId){
 
         console.error(result.error);
 
-        alert("خطا در دریافت اطلاعات حوزه.");
+        alert(
+            "خطا در دریافت اطلاعات حوزه."
+        );
 
         return;
 
     }
 
 
-    const area=result.data;
+    const area =
+        result.data;
 
-    window.selectedArea=area;
+
+    window.selectedArea =
+        area;
 
 
     const name =
@@ -779,8 +1101,12 @@ async function(areaId){
             "selectedAreaName"
         );
 
+
     if(name){
-        name.textContent=area.name;
+
+        name.textContent =
+            area.name;
+
     }
 
 
@@ -789,20 +1115,51 @@ async function(areaId){
             "selectedAreaPanel"
         );
 
+
     if(panel){
 
-        panel.style.display="block";
+        panel.style.display =
+            "block";
 
         panel.scrollIntoView({
+
             behavior:"smooth",
+
             block:"start"
+
         });
+
+    }
+
+
+    const sectionPanel =
+        document.getElementById(
+            "sectionPanel"
+        );
+
+
+    if(sectionPanel){
+
+        sectionPanel.style.display =
+            "none";
 
     }
 
 };
 
-</script>
 
-</body>
-</html>
+
+/* ================= SECTION OPTIONS ================= */
+
+window.openSection =
+function(sectionName){
+
+    const panel =
+        document.getElementById(
+            "sectionPanel"
+        );
+
+
+    const title =
+        document.getElementById(
+            "sect
