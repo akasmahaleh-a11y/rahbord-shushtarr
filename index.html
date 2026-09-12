@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>سامانه راهبرد شوشتر</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Tahoma, Arial, sans-serif;
+      background: #f3f7fc;
+      color: #172033;
+    }
+
+    .login-page {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background:
+        radial-gradient(circle at top right, #2196f3 0, transparent 35%),
+        linear-gradient(135deg, #061a35, #0d5ca8);
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 430px;
+      background: white;
+      border-radius: 24px;
+      padding: 35px 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    }
+
+    .logo {
+      width: 75px;
+      height: 75px;
+      margin: 0 auto 20px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #0877d1, #00427d);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 35px;
+      font-weight: bold;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 23px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #718096;
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #d7e0eb;
+      border-radius: 12px;
+      margin-bottom: 18px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #0877d1;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      background: #0877d1;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .login-btn:hover {
+      background: #075fa8;
+    }
+
+    .error {
+      display: none;
+      background: #fff0f0;
+      color: #b42318;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      font-size: 13px;
+    }
+
+    /* Dashboard */
+
+    .dashboard {
+      display: none;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: fixed;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 250px;
+      background: #071d3a;
+      color: white;
+      padding: 22px 15px;
+    }
+
+    .brand {
+      font-size: 19px;
+      font-weight: bold;
+      padding: 10px;
+      margin-bottom: 25px;
+    }
+
+    .menu button {
+      width: 100%;
+      padding: 13px;
+      margin-bottom: 7px;
+      text-align: right;
+      background: transparent;
+      color: #dce8f7;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .menu button:hover,
+    .menu button.active {
+      background: #0877d1;
+      color: white;
+    }
+
+    .logout {
+      background: #b42318 !important;
+      margin-top: 20px;
+    }
+
+    .content {
+      margin-right: 250px;
+      padding: 25px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .topbar h2 {
+      margin: 0;
+    }
+
+    .user-badge {
+      background: white;
+      padding: 10px 15px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,.06);
+      font-size: 13px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 5px 20px rgba(0,0,0,.05);
+    }
+
+    .stat-card span {
+      color: #718096;
+      font-size: 13px;
+    }
+
+    .stat-card strong {
+      display: block;
+      color: #0877d1;
+      font-size: 30px;
+      margin-top: 10px;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 16px;
+      padding: 22px;
+      margin-top: 20px;
+      box-shadow: 0 5px 20px rgba(0,0,0,.05);
+    }
+
+    .areas {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+
+    .area-card {
+      border: 1px solid #e0e7f0;
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .area-card h3 {
+      font-size: 16px;
+      margin-top: 0;
+    }
+
+    .primary {
+      background: #0877d1;
+      color: white;
+      padding: 11px 16px;
+      border-radius: 10px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media(max-width:800px) {
+
+      .sidebar {
+        width: 220px;
+        transform: translateX(100%);
+        transition: .2s;
+        z-index: 10;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .content {
+        margin-right: 0;
+        padding: 15px;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .areas {
+        grid-template-columns: 1fr;
+      }
+
+      .mobile-menu {
+        display: block;
+      }
+    }
+
+    .mobile-menu {
+      display: none;
+      background: #0877d1;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+    }
+
+    @media(max-width:800px) {
+      .mobile-menu {
+        display: block;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- LOGIN -->
+
+  <div id="loginPage" class="login-page">
+
+    <div class="login-box">
+
+      <div class="logo">ر</div>
+
+      <h1>سامانه راهبرد شوشتر</h1>
+
+      <div class="subtitle">
+        سامانه مدیریت و گزارش‌گیری
+      </div>
+
+      <div id="loginError" class="error"></div>
+
+      <label>ایمیل</label>
+      <input
+        id="email"
+        type="email"
+        placeholder="ایمیل کاربری"
+      >
+
+      <label>رمز عبور</label>
+      <input
+        id="password"
+        type="password"
+        placeholder="رمز عبور"
+      >
+
+      <button
+        class="login-btn"
+        onclick="login()"
+      >
+        ورود به سامانه
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- DASHBOARD -->
+
+  <div id="dashboard" class="dashboard">
+
+    <aside id="sidebar" class="sidebar">
+
+      <div class="brand">
+        سامانه راهبرد شوشتر
+      </div>
+
+      <div class="menu">
+
+        <button
+          class="active"
+          onclick="showPage('dashboardPage', this)"
+        >
+          📊 داشبورد
+        </button>
+
+        <button
+          onclick="showPage('areasPage', this)"
+        >
+          📍 انتخاب حوزه
+        </button>
+
+        <button
+          onclick="showPage('reportsPage', this)"
+        >
+          📄 گزارش‌ها
+        </button>
+
+        <button
+          onclick="showPage('settingsPage', this)"
+        >
+          ⚙️ تنظیمات
+        </button>
+
+        <button
+          class="logout"
+          onclick="logout()"
+        >
+          🚪 خروج
+        </button>
+
+      </div>
+
+    </aside>
+
+
+    <main class="content">
+
+      <div class="topbar">
+
+        <div>
+          <button
+            class="mobile-menu"
+            onclick="toggleMenu()"
+          >
+            ☰
+          </button>
+
+          <h2 id="pageTitle">
+            داشبورد
+          </h2>
+        </div>
+
+        <div class="user-badge">
+          مدیر اصلی
+        </div>
+
+      </div>
+
+
+      <!-- DASHBOARD PAGE -->
+
+      <section id="dashboardPage">
+
+        <div class="stats">
+
+          <div class="stat-card">
+            <span>کل گزارش‌ها</span>
+            <strong>0</strong>
+          </div>
+
+          <div class="stat-card">
+            <span>گزارش‌های امروز</span>
+            <strong>0</strong>
+          </div>
+
+          <div class="stat-card">
+            <span>گزارش‌های این ماه</span>
+            <strong>0</strong>
+          </div>
+
+          <div class="stat-card">
+            <span>گزارش‌های تأیید شده</span>
+            <strong>0</strong>
+          </div>
+
+        </div>
+
+        <div class="panel">
+
+          <h3>
+            سامانه راهبرد شوشتر
+          </h3>
+
+          <p>
+            به پنل مدیریت گزارش‌ها خوش آمدید.
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- AREAS -->
+
+      <section
+        id="areasPage"
+        class="hidden"
+      >
+
+        <div class="panel">
+
+          <h3>
+            انتخاب حوزه
+          </h3>
+
+          <div class="areas">
+
+            <div class="area-card">
+              <h3>حوزه یک روستایی امام محمد باقر (ع)</h3>
+              <button class="primary">ورود به حوزه</button>
+            </div>
+
+            <div class="area-card">
+              <h3>حوزه دو روستایی امام سجاد (ع)</h3>
+              <button class="primary">ورود به حوزه</button>
+            </div>
+
+            <div class="area-card">
+              <h3>حوزه سه روستایی علی بن ابی‌طالب (ع)</h3>
+              <button class="primary">ورود به حوزه</button>
+            </div>
+
+            <div class="area-card">
+              <h3>حوزه چهار روستایی امام جعفر صادق (ع)</h3>
+              <button class="primary">ورود به حوزه</button>
+            </div>
+
+            <div class="area-card">
+              <h3>حوزه پنج روستایی امام موسی کاظم (ع)</h3>
+              <button class="primary">ورود به حوزه</button>
+            </div>
+
+            <div class="area-card">
+              <h3>حوزه یک شهری محمد رسول‌الله (ص)</h3>
+              <button class="primary">ورود به حوزه</button>
+            </div>
+
+            <div class="area-card">
+              <h3>حوزه دو شهری امام حسین (ع)</h3>
+              <button class="primary">ورود به حوزه</button>
+            </div>
+
+            <div class="area-card">
+              <h3>حوزه سه شهری امام رضا (ع)</h3>
+              <button class="primary">ورود به حوزه</button>
+            </div>
+
+            <div class="area-card">
+              <h3>حوزه حضرت زینب (س)</h3>
+              <button class="primary">ورود به حوزه</button>
+            </div>
+
+            <div class="area-card">
+              <h3>حوزه حضرت فاطمه (س)</h3>
+              <button class="primary">ورود به حوزه</button>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- REPORTS -->
+
+      <section
+        id="reportsPage"
+        class="hidden"
+      >
+
+        <div class="panel">
+
+          <h3>
+            گزارش‌ها
+          </h3>
+
+          <p>
+            هنوز گزارشی ثبت نشده است.
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- SETTINGS -->
+
+      <section
+        id="settingsPage"
+        class="hidden"
+      >
+
+        <div class="panel">
+
+          <h3>
+            تنظیمات
+          </h3>
+
+          <p>
+            تنظیمات حساب کاربری و سامانه در این بخش قرار می‌گیرد.
+          </p>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+
+<script>
+
+function login() {
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
+
+  const error =
+    document.getElementById("loginError");
+
+  if (!email || !password) {
+
+    error.textContent =
+      "ایمیل و رمز عبور را وارد کنید.";
+
+    error.style.display = "block";
+
+    return;
+  }
+
+  /*
+    فعلاً ورود نمایشی نیست.
+    در مرحله بعد این قسمت را مستقیم
+    به Supabase Auth وصل می‌کنیم.
+  */
+
+  error.textContent =
+    "اتصال به Supabase در مرحله بعد فعال می‌شود.";
+
+  error.style.display = "block";
+}
+
+
+function logout() {
+
+  document.getElementById("dashboard").style.display =
+    "none";
+
+  document.getElementById("loginPage").style.display =
+    "flex";
+
+}
+
+
+function showPage(pageId, button) {
+
+  const pages = [
+    "dashboardPage",
+    "areasPage",
+    "reportsPage",
+    "settingsPage"
+  ];
+
+  pages.forEach(function(id) {
+
+    document.getElementById(id)
+      .classList.add("hidden");
+
+  });
+
+  document.getElementById(pageId)
+    .classList.remove("hidden");
+
+
+  document
+    .querySelectorAll(".menu button")
+    .forEach(function(btn) {
+
+      btn.classList.remove("active");
+
+    });
+
+  button.classList.add("active");
+
+
+  const titles = {
+
+    dashboardPage: "داشبورد",
+
+    areasPage: "انتخاب حوزه",
+
+    reportsPage: "گزارش‌ها",
+
+    settingsPage: "تنظیمات"
+
+  };
+
+  document.getElementById("pageTitle")
+    .textContent = titles[pageId];
+
+}
+
+
+function toggleMenu() {
+
+  document
+    .getElementById("sidebar")
+    .classList.toggle("open");
+
+}
+
+</script>
+
+</body>
+  </html>
+  
