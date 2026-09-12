@@ -1,524 +1,542 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سامانه راهبرد شوشتر</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-*{box-sizing:border-box}
-
-body{
-    margin:0;
-    font-family:Tahoma,Arial,sans-serif;
-    background:#f3f6fb;
-    color:#172033;
-}
-
-button,input{
-    font-family:inherit;
-}
-
-#loginPage{
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:20px;
-    background:linear-gradient(135deg,#075bd6,#092f6d);
-}
-
-.login-box{
-    width:100%;
-    max-width:420px;
-    background:#fff;
-    padding:32px 25px;
-    border-radius:22px;
-    box-shadow:0 20px 60px rgba(0,0,0,.25);
-}
-
-.logo{
-    width:70px;
-    height:70px;
-    margin:0 auto 18px;
-    background:#075bd6;
-    color:white;
-    border-radius:18px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:30px;
-    font-weight:bold;
-}
-
-.login-title{
-    text-align:center;
-    font-size:23px;
-    font-weight:bold;
-}
-
-.login-subtitle{
-    text-align:center;
-    color:#777;
-    margin:8px 0 25px;
-    font-size:13px;
-}
-
-.form-group{
-    margin-bottom:17px;
-}
-
-.form-group label{
-    display:block;
-    margin-bottom:7px;
-    font-size:14px;
-    font-weight:bold;
-}
-
-.form-group input{
-    width:100%;
-    padding:13px;
-    border:1px solid #d7dfeb;
-    border-radius:11px;
-    outline:none;
-    font-size:15px;
-}
-
-.form-group input:focus{
-    border-color:#075bd6;
-}
-
-.login-button{
-    width:100%;
-    border:0;
-    padding:14px;
-    border-radius:12px;
-    background:#075bd6;
-    color:white;
-    font-size:16px;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-.login-button:disabled{
-    opacity:.6;
-}
-
-#loginError{
-    text-align:center;
-    color:#dc3545;
-    margin-top:14px;
-    font-size:13px;
-}
-
-/* dashboard */
-
-#dashboard{
-    display:none;
-    min-height:100vh;
-}
-
-#sidebar{
-    position:fixed;
-    right:0;
-    top:0;
-    bottom:0;
-    width:260px;
-    background:#092f6d;
-    color:white;
-    padding:20px 14px;
-    z-index:1000;
-}
-
-.sidebar-title{
-    text-align:center;
-    font-size:20px;
-    font-weight:bold;
-    padding:15px 5px 25px;
-}
-
-.user-badge{
-    display:block;
-    background:rgba(255,255,255,.12);
-    padding:10px;
-    text-align:center;
-    border-radius:10px;
-    font-size:13px;
-    margin-bottom:20px;
-}
-
-.menu-btn{
-    width:100%;
-    padding:13px;
-    margin-bottom:7px;
-    border:0;
-    border-radius:10px;
-    background:transparent;
-    color:white;
-    text-align:right;
-    cursor:pointer;
-}
-
-.menu-btn:hover,
-.menu-btn.active{
-    background:rgba(255,255,255,.15);
-}
-
-.logout-btn{
-    background:#dc3545;
-    margin-top:20px;
-}
-
-.main-content{
-    margin-right:260px;
-    padding:22px;
-}
-
-.topbar{
-    background:white;
-    border-radius:14px;
-    padding:17px 20px;
-    margin-bottom:20px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-.page-title{
-    font-size:20px;
-    font-weight:bold;
-}
-
-.mobile-menu{
-    display:none;
-    border:0;
-    background:#075bd6;
-    color:white;
-    padding:9px 13px;
-    border-radius:9px;
-}
-
-/* pages */
-
-.page{
-    display:none;
-}
-
-#dashboardPage{
-    display:block;
-}
-
-.welcome{
-    background:linear-gradient(135deg,#075bd6,#174ea6);
-    color:white;
-    padding:25px;
-    border-radius:17px;
-    margin-bottom:20px;
-}
-
-.welcome h2{
-    margin-top:0;
-}
-
-.stats{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:15px;
-}
-
-.stat{
-    background:white;
-    padding:20px;
-    border-radius:15px;
-    box-shadow:0 3px 15px rgba(0,0,0,.05);
-}
-
-.stat-title{
-    color:#777;
-    font-size:13px;
-    margin-bottom:10px;
-}
-
-.stat-number{
-    color:#075bd6;
-    font-size:30px;
-    font-weight:bold;
-}
-
-/* areas */
-
-.areas-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:14px;
-}
-
-.area-card{
-    width:100%;
-    border:1px solid #e0e6ef;
-    background:white;
-    border-radius:14px;
-    padding:17px;
-    display:flex;
-    align-items:center;
-    gap:14px;
-    cursor:pointer;
-    text-align:right;
-}
-
-.area-card:hover{
-    border-color:#075bd6;
-}
-
-.area-number{
-    min-width:42px;
-    height:42px;
-    border-radius:11px;
-    background:#e9f2ff;
-    color:#075bd6;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    font-weight:bold;
-}
-
-.area-name{
-    font-weight:bold;
-    font-size:14px;
-    line-height:1.7;
-}
-
-#selectedAreaPanel{
-    display:none;
-    margin-top:22px;
-}
-
-.selected-area{
-    background:white;
-    padding:22px;
-    border-radius:17px;
-}
-
-.selected-title{
-    color:#075bd6;
-    font-size:19px;
-    font-weight:bold;
-    margin-bottom:20px;
-}
-
-.sections{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:13px;
-}
-
-.section-card{
-    background:#f6f9ff;
-    border:1px solid #dce7f8;
-    border-radius:14px;
-    padding:20px;
-    text-align:center;
-    cursor:pointer;
-}
-
-.section-card:hover{
-    border-color:#075bd6;
-}
-
-.section-icon{
-    font-size:28px;
-    margin-bottom:9px;
-}
-
-#subjectsPanel{
-    display:none;
-    margin-top:20px;
-    background:white;
-    padding:20px;
-    border-radius:17px;
-}
-
-.subjects{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:12px;
-}
-
-.subject{
-    border:1px solid #dce7f8;
-    background:#f8faff;
-    padding:14px;
-    border-radius:11px;
-    cursor:pointer;
-    text-align:right;
-}
-
-#reportFormPanel{
-    display:none;
-    margin-top:20px;
-    background:white;
-    padding:22px;
-    border-radius:17px;
-}
-
-.report-title{
-    color:#075bd6;
-    font-weight:bold;
-    font-size:19px;
-    margin-bottom:20px;
-}
-
-textarea,
-select{
-    width:100%;
-    padding:13px;
-    border:1px solid #d7dfeb;
-    border-radius:11px;
-}
-
-.submit-btn{
-    width:100%;
-    border:0;
-    padding:14px;
-    border-radius:11px;
-    background:#075bd6;
-    color:white;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-.box{
-    background:white;
-    padding:20px;
-    border-radius:14px;
-    text-align:center;
-}
-
-/* mobile */
-
-@media(max-width:900px){
-
-    #sidebar{
-        transform:translateX(100%);
-        transition:.3s;
-    }
-
-    #sidebar.open{
-        transform:translateX(0);
-    }
-
-    .main-content{
-        margin-right:0;
-    }
-
-    .mobile-menu{
-        display:block;
-    }
-
-    .stats{
-        grid-template-columns:repeat(2,1fr);
-    }
-
-    .sections{
-        grid-template-columns:repeat(2,1fr);
-    }
-}
-
-@media(max-width:600px){
-
-    .main-content{
-        padding:13px;
-    }
-
-    .areas-grid,
-    .subjects{
-        grid-template-columns:1fr;
-    }
-
-    .sections{
-        grid-template-columns:1fr;
-    }
-
-    .stats{
-        gap:9px;
-    }
-
-    .stat{
-        padding:15px;
-    }
-
-    .stat-number{
-        font-size:24px;
-    }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>سامانه راهبرد شوشتر</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Tahoma, Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: #f1f5f9;
+            color: #172033;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+        }
+
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #071b3a, #1261a0);
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 430px;
+            background: white;
+            border-radius: 22px;
+            padding: 35px 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,.25);
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: #1261a0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin-top: 0;
+        }
+
+        .login-title {
+            text-align: center;
+            color: #0b3d70;
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+            color: #334155;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 13px;
+            outline: none;
+            background: white;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #1261a0;
+            box-shadow: 0 0 0 3px rgba(18,97,160,.1);
+        }
+
+        textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .main-btn {
+            width: 100%;
+            border: 0;
+            border-radius: 12px;
+            padding: 14px;
+            background: #1261a0;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .main-btn:hover {
+            background: #0b4e86;
+        }
+
+        .main-btn:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .error {
+            color: #dc2626;
+            background: #fef2f2;
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 12px;
+            text-align: center;
+            display: none;
+        }
+
+        #dashboard {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #071b3a;
+            color: white;
+            padding: 20px 15px;
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .brand {
+            text-align: center;
+            padding: 15px 5px 25px;
+            border-bottom: 1px solid rgba(255,255,255,.12);
+            margin-bottom: 15px;
+        }
+
+        .brand strong {
+            font-size: 19px;
+        }
+
+        .user-badge {
+            display: block;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #b9d9f5;
+        }
+
+        .menu-btn {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            color: white;
+            text-align: right;
+            padding: 13px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .menu-btn:hover,
+        .menu-btn.active {
+            background: #1261a0;
+        }
+
+        .logout-btn {
+            margin-top: 20px;
+            background: #991b1b;
+        }
+
+        .content {
+            width: calc(100% - 260px);
+            margin-right: 260px;
+            padding: 25px;
+        }
+
+        .topbar {
+            background: white;
+            padding: 18px 22px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.05);
+        }
+
+        .topbar h2 {
+            margin: 0;
+            color: #0b3d70;
+        }
+
+        .page {
+            display: none;
+        }
+
+        #dashboardPage {
+            display: block;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 22px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.05);
+        }
+
+        .stat-card span {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .stat-card strong {
+            display: block;
+            margin-top: 10px;
+            font-size: 30px;
+            color: #1261a0;
+        }
+
+        .panel {
+            background: white;
+            padding: 22px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.05);
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .panel-title h3 {
+            margin: 0;
+            color: #0b3d70;
+        }
+
+        .areas-grid,
+        .users-grid,
+        .sections-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .area-card,
+        .user-card,
+        .section-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 18px;
+            background: #f8fafc;
+        }
+
+        .area-card-title,
+        .user-card-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            line-height: 1.8;
+        }
+
+        .small-btn {
+            border: 0;
+            border-radius: 9px;
+            padding: 9px 13px;
+            cursor: pointer;
+            background: #1261a0;
+            color: white;
+        }
+
+        .danger-btn {
+            background: #dc2626;
+        }
+
+        .success-btn {
+            background: #15803d;
+        }
+
+        .secondary-btn {
+            background: #475569;
+        }
+
+        .subjects {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .subject-btn {
+            padding: 15px;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #075985;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .subject-btn:hover {
+            background: #dbeafe;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 2000;
+        }
+
+        .modal-box {
+            width: 100%;
+            max-width: 650px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 9px;
+        }
+
+        .checkbox-row input {
+            width: auto;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 9px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .success-message {
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .error-message {
+            color: #991b1b;
+            background: #fee2e2;
+        }
+
+        .mobile-menu {
+            display: none;
+            border: 0;
+            background: #1261a0;
+            color: white;
+            padding: 10px 13px;
+            border-radius: 9px;
+            cursor: pointer;
+        }
+
+        @media(max-width: 1000px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .areas-grid,
+            .users-grid,
+            .sections-grid,
+            .subjects {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media(max-width: 700px) {
+
+            .sidebar {
+                transform: translateX(100%);
+                transition: .25s;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .content {
+                width: 100%;
+                margin-right: 0;
+                padding: 12px;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            .topbar {
+                padding: 14px;
+            }
+
+            .stats,
+            .areas-grid,
+            .users-grid,
+            .sections-grid,
+            .subjects {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
 <!-- ================= LOGIN ================= -->
 
-<div id="loginPage">
+<div id="loginPage" class="login-page">
 
-<div class="login-box">
+    <div class="login-box">
 
-<div class="logo">ر</div>
+        <div class="logo">ر</div>
 
-<div class="login-title">
-سامانه راهبرد شوشتر
-</div>
+        <h1 class="login-title">
+            سامانه راهبرد شوشتر
+        </h1>
 
-<div class="login-subtitle">
-سامانه مدیریت و ثبت گزارشات
-</div>
+        <div class="login-subtitle">
+            سامانه مدیریت و ثبت گزارشات
+        </div>
 
-<form id="loginForm">
+        <form id="loginForm" onsubmit="return false;">
 
-<div class="form-group">
+            <div class="form-group">
 
-<label for="email">
-کد کاربری / ایمیل
-</label>
+                <label>
+                    کد کاربری / ایمیل
+                </label>
 
-<input
-    id="email"
-    type="text"
-    autocomplete="username"
-    placeholder="کد کاربری یا ایمیل"
->
+                <input
+                    id="email"
+                    type="text"
+                    autocomplete="username"
+                    placeholder="کد کاربری خود را وارد کنید"
+                >
 
-</div>
+            </div>
 
-<div class="form-group">
+            <div class="form-group">
 
-<label for="password">
-رمز عبور
-</label>
+                <label>
+                    رمز عبور
+                </label>
 
-<input
-    id="password"
-    type="password"
-    autocomplete="current-password"
-    placeholder="رمز عبور"
->
+                <input
+                    id="password"
+                    type="password"
+                    autocomplete="current-password"
+                    placeholder="رمز عبور"
+                >
 
-</div>
+            </div>
 
-<button
-    id="loginButton"
-    class="login-button"
-    type="submit"
->
-ورود به سامانه
-</button>
+            <button
+                id="loginButton"
+                type="button"
+                class="main-btn"
+                onclick="login(event)"
+            >
+                ورود به سامانه
+            </button>
 
-<div id="loginError"></div>
+            <div
+                id="loginError"
+                class="error"
+            ></div>
 
-</form>
+        </form>
 
-</div>
+    </div>
 
 </div>
 
@@ -527,745 +545,320 @@ select{
 
 <div id="dashboard">
 
-<aside id="sidebar">
+    <div class="app">
 
-<div class="sidebar-title">
-سامانه راهبرد شوشتر
-</div>
+        <!-- SIDEBAR -->
 
-<span class="user-badge">
-مدیر اصلی
-</span>
+        <aside id="sidebar" class="sidebar">
 
-<button
-    class="menu-btn active"
-    onclick="showPage('dashboardPage',this)"
->
-🏠 داشبورد
-</button>
+            <div class="brand">
 
-<button
-    class="menu-btn"
-    onclick="showPage('areasPage',this)"
->
-📍 انتخاب حوزه
-</button>
+                <strong>
+                    سامانه راهبرد شوشتر
+                </strong>
 
-<button
-    class="menu-btn"
-    onclick="showPage('reportsPage',this)"
->
-📋 گزارش‌ها
-</button>
+                <span class="user-badge">
+                    کاربر
+                </span>
 
-<button
-    class="menu-btn"
-    onclick="showPage('settingsPage',this)"
->
-⚙️ تنظیمات
-</button>
+            </div>
 
-<button
-    class="menu-btn logout-btn"
-    onclick="logout()"
->
-🚪 خروج
-</button>
+            <button
+                class="menu-btn active"
+                onclick="showPage('dashboardPage', this)"
+            >
+                🏠 داشبورد
+            </button>
 
-</aside>
+            <button
+                class="menu-btn"
+                onclick="showPage('areasPage', this)"
+            >
+                🏢 انتخاب حوزه
+            </button>
 
+            <button
+                id="usersMenu"
+                class="menu-btn"
+                onclick="showPage('usersPage', this)"
+            >
+                👥 مدیریت کاربران
+            </button>
 
-<main class="main-content">
+            <button
+                class="menu-btn"
+                onclick="showPage('reportsPage', this)"
+            >
+                📊 گزارش‌ها
+            </button>
 
-<div class="topbar">
+            <button
+                class="menu-btn"
+                onclick="showPage('settingsPage', this)"
+            >
+                ⚙️ تنظیمات
+            </button>
 
-<div id="pageTitle" class="page-title">
-داشبورد
-</div>
+            <button
+                class="menu-btn logout-btn"
+                onclick="logout()"
+            >
+                🚪 خروج
+            </button>
 
-<button
-    class="mobile-menu"
-    onclick="toggleMenu()"
->
-☰
-</button>
+        </aside>
 
-</div>
 
+        <!-- CONTENT -->
 
-<!-- dashboard -->
+        <main class="content">
 
-<section id="dashboardPage" class="page">
+            <div class="topbar">
 
-<div class="welcome">
+                <button
+                    class="mobile-menu"
+                    onclick="toggleMenu()"
+                >
+                    ☰
+                </button>
 
-<h2>
-خوش آمدید 👋
-</h2>
+                <h2 id="pageTitle">
+                    داشبورد
+                </h2>
 
-سامانه راهبرد شوشتر آماده دریافت گزارش‌هاست.
+                <span class="user-badge">
+                    مدیر
+                </span>
 
-</div>
+            </div>
 
-<div class="stats">
 
-<div class="stat">
-<div class="stat-title">
-کل گزارش‌های تأیید شده
-</div>
+            <!-- DASHBOARD PAGE -->
 
-<div id="totalReports" class="stat-number">
-0
-</div>
-</div>
+            <section
+                id="dashboardPage"
+                class="page"
+            >
 
-<div class="stat">
-<div class="stat-title">
-گزارش‌های امروز
-</div>
+                <div class="stats">
 
-<div id="todayReports" class="stat-number">
-0
-</div>
-</div>
+                    <div class="stat-card">
+                        <span>کل گزارش‌های تأیید شده</span>
+                        <strong id="totalReports">0</strong>
+                    </div>
 
-<div class="stat">
-<div class="stat-title">
-گزارش‌های این ماه
-</div>
+                    <div class="stat-card">
+                        <span>گزارش‌های امروز</span>
+                        <strong id="todayReports">0</strong>
+                    </div>
 
-<div id="monthReports" class="stat-number">
-0
-</div>
-</div>
+                    <div class="stat-card">
+                        <span>گزارش‌های این ماه</span>
+                        <strong id="monthReports">0</strong>
+                    </div>
 
-<div class="stat">
-<div class="stat-title">
-تعداد تصاویر
-</div>
+                    <div class="stat-card">
+                        <span>تعداد تصاویر</span>
+                        <strong id="photoCount">0</strong>
+                    </div>
 
-<div id="photoCount" class="stat-number">
-0
-</div>
-</div>
+                </div>
 
-</div>
+                <div class="panel">
 
-</section>
+                    <h3>
+                        خوش آمدید
+                    </h3>
 
+                    <p>
+                        به سامانه راهبرد شوشتر خوش آمدید.
+                    </p>
 
-<!-- areas -->
+                    <p>
+                        از منوی سمت راست می‌توانید حوزه‌ها،
+                        کاربران و گزارش‌ها را مدیریت کنید.
+                    </p>
 
-<section id="areasPage" class="page">
+                </div>
 
-<h2>
-انتخاب حوزه
-</h2>
+            </section>
 
-<div id="areasContainer" class="areas-grid">
 
-<div class="box">
-در حال دریافت حوزه‌ها...
-</div>
+            <!-- AREAS PAGE -->
 
-</div>
+            <section
+                id="areasPage"
+                class="page"
+            >
 
+                <div class="panel">
 
-<div id="selectedAreaPanel">
+                    <div class="panel-title">
 
-<div class="selected-area">
+                        <h3>
+                            انتخاب حوزه
+                        </h3>
 
-<div
-    id="selectedAreaName"
-    class="selected-title"
->
-حوزه
-</div>
+                    </div>
 
-<h3>
-انتخاب بخش
-</h3>
+                    <div
+                        id="areasContainer"
+                        class="areas-grid"
+                    >
+                    </div>
 
-<div class="sections">
+                </div>
 
 
-<div
-class="section-card"
-onclick="openSection('شمسا')"
->
+                <div
+                    id="selectedAreaPanel"
+                    class="panel"
+                    style="display:none;"
+                >
 
-<div class="section-icon">
-📱
-</div>
+                    <div class="panel-title">
 
-<strong>
-شمسا
-</strong>
+                        <h3>
+                            <span id="selectedAreaName">
+                                حوزه
+                            </span>
+                        </h3>
 
-</div>
+                    </div>
 
+                    <div class="sections-grid">
 
-<div
-class="section-card"
-onclick="openSection('متنا')"
->
+                        <div class="section-card">
 
-<div class="section-icon">
-🎬
-</div>
+                            <h3>شمسا</h3>
 
-<strong>
-متنا
-</strong>
+                            <div class="subjects">
 
-</div>
+                                <button class="subject-btn">
+                                    لینک توییتر
+                                </button>
 
+                                <button class="subject-btn">
+                                    لینک اینستاگرام
+                                </button>
 
-<div
-class="section-card"
-onclick="openSection('مپتا')"
->
+                                <button class="subject-btn">
+                                    ادیورز
+                                </button>
 
-<div class="section-icon">
-📰
-</div>
+                                <button class="subject-btn">
+                                    انتشار
+                                </button>
 
-<strong>
-مپتا
-</strong>
+                            </div>
 
-</div>
+                        </div>
 
 
-<div
-class="section-card"
-onclick="openSection('نسرا')"
->
+                        <div class="section-card">
 
-<div class="section-icon">
-🎓
-</div>
+                            <h3>متنا</h3>
 
-<strong>
-نسرا
-</strong>
+                            <div class="subjects">
 
-</div>
+                                <button class="subject-btn">
+                                    تولیدات بومی
+                                </button>
 
+                                <button class="subject-btn">
+                                    تولید عملیاتی
+                                </button>
 
-<div
-class="section-card"
-onclick="openSection('رصد')"
->
+                            </div>
 
-<div class="section-icon">
-🔎
-</div>
+                        </div>
 
-<strong>
-رصد
-</strong>
 
-</div>
+                        <div class="section-card">
 
+                            <h3>مپتا</h3>
 
-<div
-class="section-card"
-onclick="openSection('رسانه محله')"
->
+                            <div class="subjects">
 
-<div class="section-icon">
-📢
-</div>
+                                <button class="subject-btn">
+                                    ارسال خبر
+                                </button>
 
-<strong>
-رسانه محله
-</strong>
+                                <button class="subject-btn">
+                                    مصاحبه
+                                </button>
 
-</div>
+                                <button class="subject-btn">
+                                    عملیات
+                                </button>
 
-</div>
+                            </div>
 
+                        </div>
 
-<div id="subjectsPanel">
 
-<h3 id="subjectsTitle">
-موضوعات
-</h3>
+                        <div class="section-card">
 
-<div
-id="subjectsContainer"
-class="subjects"
-></div>
+                            <h3>نسرا</h3>
 
-</div>
+                            <div class="subjects">
 
+                                <button class="subject-btn">
+                                    خلاقیت
+                                </button>
 
-<div id="reportFormPanel">
+                                <button class="subject-btn">
+                                    نشست حضوری
+                                </button>
 
-<div
-id="reportFormTitle"
-class="report-title"
->
-ثبت گزارش
-</div>
+                                <button class="subject-btn">
+                                    لایو
+                                </button>
 
-<form id="reportForm">
+                                <button class="subject-btn">
+                                    تولید محتوا
+                                </button>
 
-<div class="form-group">
-<label>حوزه</label>
+                                <button class="subject-btn">
+                                    توانمندسازی
+                                </button>
 
-<input
-id="reportArea"
-readonly
->
-</div>
+                            </div>
 
+                        </div>
 
-<div class="form-group">
-<label>بخش</label>
 
-<input
-id="reportSection"
-readonly
->
-</div>
+                        <div class="section-card">
 
+                            <h3>رصد</h3>
 
-<div class="form-group">
-<label>موضوع</label>
+                            <div class="subjects">
 
-<input
-id="reportSubject"
-readonly
->
-</div>
+                                <button class="subject-btn">
+                                    ارسال خبر
+                                </button>
 
+                            </div>
 
-<div class="form-group">
-<label>عنوان گزارش</label>
+                        </div>
 
-<input
-id="reportTitle"
-required
-placeholder="عنوان گزارش"
->
-</div>
 
+                        <div class="section-card">
 
-<div class="form-group">
-<label>توضیحات</label>
+                            <h3>رسانه محله</h3>
 
-<textarea
-id="reportDescription"
-rows="5"
-placeholder="توضیحات گزارش"
-></textarea>
-</div>
+                            <div class="subjects">
 
+                                <button class="subject-btn">
+                                    گزارش روزانه
+                                </button>
 
-<div class="form-group">
-<label>لینک</label>
+                                <button class="subject-btn">
+                                    عملیات
+                                </button>
 
-<input
-id="reportLink"
-type="url"
-placeholder="لینک در صورت وجود"
->
-</div>
+                            </div>
 
+                        </div>
 
-<div class="form-group">
-<label>تاریخ گزارش</label>
-
-<input
-id="reportDate"
-type="date"
-required
->
-</div>
-
-
-<div class="form-group">
-<label>تصاویر</label>
-
-<input
-id="reportPhotos"
-type="file"
-accept="image/*"
-multiple
->
-</div>
-
-
-<button
-type="submit"
-class="submit-btn"
->
-ثبت گزارش
-</button>
-
-</form>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-
-<!-- reports -->
-
-<section id="reportsPage" class="page">
-
-<h2>
-گزارش‌ها
-</h2>
-
-<div class="box">
-بخش گزارش‌ها در مرحله بعد تکمیل می‌شود.
-</div>
-
-</section>
-
-
-<!-- settings -->
-
-<section id="settingsPage" class="page">
-
-<h2>
-تنظیمات
-</h2>
-
-<div class="box">
-تنظیمات سامانه در مرحله بعد تکمیل می‌شود.
-</div>
-
-</section>
-
-</main>
-
-</div>
-
-
-<script>
-
-/* =========================
-   جلوگیری قطعی از Refresh
-========================= */
-
-document
-.getElementById("loginForm")
-.addEventListener("submit", function(event){
-
-    event.preventDefault();
-
-    event.stopPropagation();
-
-    if(typeof login === "function"){
-        login();
-    }
-
-    return false;
-});
-
-
-/* =========================
-   گزارش
-========================= */
-
-document
-.getElementById("reportForm")
-.addEventListener("submit", function(event){
-
-    event.preventDefault();
-
-    event.stopPropagation();
-
-    if(typeof submitReport === "function"){
-        submitReport();
-    }
-
-    return false;
-});
-
-
-/* =========================
-   صفحات
-========================= */
-
-function showPage(pageId,button){
-
-    document
-    .querySelectorAll(".page")
-    .forEach(function(page){
-
-        page.style.display="none";
-
-    });
-
-
-    const page =
-        document.getElementById(pageId);
-
-
-    if(page){
-        page.style.display="block";
-    }
-
-
-    const titles={
-
-        dashboardPage:"داشبورد",
-
-        areasPage:"انتخاب حوزه",
-
-        reportsPage:"گزارش‌ها",
-
-        settingsPage:"تنظیمات"
-
-    };
-
-
-    const title =
-        document.getElementById("pageTitle");
-
-
-    if(title){
-        title.textContent =
-            titles[pageId] ||
-            "سامانه راهبرد شوشتر";
-    }
-
-
-    document
-    .querySelectorAll(".menu-btn")
-    .forEach(function(btn){
-
-        btn.classList.remove("active");
-
-    });
-
-
-    if(button){
-        button.classList.add("active");
-    }
-
-
-    if(
-        pageId==="areasPage" &&
-        typeof loadAreas==="function"
-    ){
-
-        loadAreas();
-
-    }
-
-}
-
-
-/* =========================
-   موبایل
-========================= */
-
-function toggleMenu(){
-
-    const sidebar =
-        document.getElementById("sidebar");
-
-    if(sidebar){
-        sidebar.classList.toggle("open");
-    }
-
-}
-
-
-/* =========================
-   بخش‌ها
-========================= */
-
-function openSection(sectionName){
-
-    const panel =
-        document.getElementById(
-            "subjectsPanel"
-        );
-
-    const title =
-        document.getElementById(
-            "subjectsTitle"
-        );
-
-    const container =
-        document.getElementById(
-            "subjectsContainer"
-        );
-
-
-    const subjects={
-
-        "شمسا":[
-            "گزارش توییتر",
-            "گزارش اینستا",
-            "انتشار",
-            "ادیورز"
-        ],
-
-        "متنا":[
-            "تولیدات بومی",
-            "تولید عملیاتی"
-        ],
-
-        "مپتا":[
-            "ارسال خبر",
-            "مصاحبه",
-            "عملیات"
-        ],
-
-        "نسرا":[
-            "خلاقیت",
-            "نشست حضوری",
-            "لایو",
-            "تولید محتوا",
-            "توانمندسازی"
-        ],
-
-        "رصد":[
-            "ارسال خبر"
-        ],
-
-        "رسانه محله":[
-            "گزارش روزانه",
-            "عملیات"
-        ]
-
-    };
-
-
-    title.textContent =
-        "موضوعات " + sectionName;
-
-
-    container.innerHTML="";
-
-
-    (subjects[sectionName] || [])
-    .forEach(function(subject){
-
-        const button =
-            document.createElement("button");
-
-        button.className="subject";
-
-        button.type="button";
-
-        button.textContent=subject;
-
-        button.onclick=function(){
-
-            openReportForm(
-                sectionName,
-                subject
-            );
-
-        };
-
-        container.appendChild(button);
-
-    });
-
-
-    panel.style.display="block";
-
-
-    panel.scrollIntoView({
-        behavior:"smooth",
-        block:"start"
-    });
-
-}
-
-
-/* =========================
-   فرم گزارش
-========================= */
-
-function openReportForm(
-    section,
-    subject
-){
-
-    const panel =
-        document.getElementById(
-            "reportFormPanel"
-        );
-
-
-    const area =
-        window.selectedArea;
-
-
-    document.getElementById(
-        "reportArea"
-    ).value =
-        area ? area.name : "";
-
-
-    document.getElementById(
-        "reportSection"
-    ).value =
-        section;
-
-
-    document.getElementById(
-        "reportSubject"
-    ).value =
-        subject;
-
-
-    document.getElementById(
-        "reportFormTitle"
-    ).textContent =
-        "ثبت گزارش " +
-        section +
-        " - " +
-        subject;
-
-
-    const date =
-        document.getElementById(
-            "reportDate"
-        );
-
-
-    if(date && !date.value){
-
-        date.value =
-            new Date()
-            .toISOString()
-            .split("T")[0];
-
-    }
-
-
-    panel.style.display="block";
-
-
-    panel.scrollIntoView({
-        behavior:"smooth",
-        block:"start"
-    });
-
-}
-
-</script>
-
-
-<!-- نسخه جدید برای جلوگیری از کش -->
-
-<script src="app.js?v=9"></script>
-
-</body>
-    </html>
+                    <
